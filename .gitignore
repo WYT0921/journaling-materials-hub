@@ -1,0 +1,53 @@
+# 依赖目录
+node_modules/
+miniprogram/miniprogram_npm/
+
+# 环境变量
+.env
+.env.local
+.env.*.local
+
+# 日志文件
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 编译输出
+dist/
+build/
+*.js.map
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# IDE配置
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# 微信小程序
+miniprogram/miniprogram_npm/
+
+# 测试覆盖率
+coverage/
+.nyc_output/
+
+# 临时文件
+tmp/
+temp/
+*.tmp
+*.temp
+
+# 上传文件
+uploads/
+
+# 备份文件
+*.bak
+*.backup

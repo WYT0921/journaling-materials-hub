@@ -1,0 +1,100 @@
+<!-- pages/tools/tools.wxml -->
+<!-- 工具页 -->
+
+<view class="container">
+  <!-- 顶部导航栏 -->
+  <view class="navbar">
+    <view class="navbar-title">
+      <text class="title-text">工具</text>
+    </view>
+  </view>
+
+  <!-- 工具列表 -->
+  <scroll-view class="tools-scroll" scroll-y="true">
+    <view class="tools-grid">
+      <!-- 排版工具 -->
+      <view class="tool-item" bindtap="onToolTap" data-type="layout">
+        <view class="tool-icon-wrapper">
+          <image class="tool-icon" src="/assets/icons/layout.png" mode="aspectFit"></image>
+        </view>
+        <text class="tool-name">排版工具</text>
+        <text class="tool-desc">手账排版模板</text>
+      </view>
+
+      <!-- 配色工具 -->
+      <view class="tool-item" bindtap="onToolTap" data-type="color">
+        <view class="tool-icon-wrapper">
+          <image class="tool-icon" src="/assets/icons/color.png" mode="aspectFit"></image>
+        </view>
+        <text class="tool-name">配色工具</text>
+        <text class="tool-desc">色彩搭配方案</text>
+      </view>
+
+      <!-- 字体资源 -->
+      <view class="tool-item" bindtap="onToolTap" data-type="font">
+        <view class="tool-icon-wrapper">
+          <image class="tool-icon" src="/assets/icons/font.png" mode="aspectFit"></image>
+        </view>
+        <text class="tool-name">字体资源</text>
+        <text class="tool-desc">精选手写字体</text>
+      </view>
+
+      <!-- PNG素材站 -->
+      <view class="tool-item" bindtap="onToolTap" data-type="png">
+        <view class="tool-icon-wrapper">
+          <image class="tool-icon" src="/assets/icons/png.png" mode="aspectFit"></image>
+        </view>
+        <text class="tool-name">PNG素材站</text>
+        <text class="tool-desc">透明背景素材</text>
+      </view>
+
+      <!-- 胶带参考 -->
+      <view class="tool-item" bindtap="onToolTap" data-type="tape">
+        <view class="tool-icon-wrapper">
+          <image class="tool-icon" src="/assets/icons/tape.png" mode="aspectFit"></image>
+        </view>
+        <text class="tool-name">胶带参考</text>
+        <text class="tool-desc">胶带使用灵感</text>
+      </view>
+
+      <!-- Notion模板 -->
+      <view class="tool-item" bindtap="onToolTap" data-type="notion">
+        <view class="tool-icon-wrapper">
+          <image class="tool-icon" src="/assets/icons/notion.png" mode="aspectFit"></image>
+        </view>
+        <text class="tool-name">Notion模板</text>
+        <text class="tool-desc">手账规划模板</text>
+      </view>
+    </view>
+
+    <!-- 推荐资源 -->
+    <view class="recommend-section">
+      <view class="section-header">
+        <text class="section-title">推荐资源</text>
+      </view>
+
+      <view class="recommend-list">
+        <view class="recommend-item" wx:for="{{recommendResources}}" wx:key="id" bindtap="onRecommendTap" data-index="{{index}}">
+          <view class="recommend-info">
+            <text class="recommend-name">{{item.name}}</text>
+            <text class="recommend-desc">{{item.description}}</text>
+          </view>
+          <view class="recommend-action">
+            <text class="action-text">复制链接</text>
+            <image class="action-icon" src="/assets/icons/copy.png" mode="aspectFit"></image>
+          </view>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- FAB悬浮按钮 -->
+  <view class="fab-button" bindtap="onFabTap">
+    <image class="fab-icon" src="/assets/icons/add.png" mode="aspectFit"></image>
+  </view>
+
+  <!-- Toast提示 -->
+  <view class="toast" wx:if="{{showToast}}">
+    <text class="toast-text">{{toastText}}</text>
+  </view>
+</view>

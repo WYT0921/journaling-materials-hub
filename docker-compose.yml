@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  # 后端服务
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: journaling-materials-hub-server
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USERNAME=journaling_user
+      - DB_PASSWORD=${DB_PASSWORD:-your_password}
+      - DB_NAME=journaling_materials_hub
+      - JWT_SECRET=${JWT_SECRET:-your_jwt_secret_key_here}
+      - JWT_EXPIRES_IN=7d
+      - WECHAT_APPID=${WECHAT_APPID}
+      - WECHAT_SECRET=${WECHAT_SECRET}
+    depends_on:
+      - mysql
+    networks:
+      - journaling-network
+    volumes:
+      - ./server/logs:/app/logs
+
+  # MySQL 数据库
+  mysql:
+    image: mysql:8.0
+    container_name: journaling-materials-hub-mysql
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root_password}
+      - MYSQL_DATABASE=journaling_materials_hub
+      - MYSQL_USER=journaling_user
+      - MYSQL_PASSWORD=${DB_PASSWORD:-your_password}
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./server/migrations:/docker-entrypoint-initdb.d
+    networks:
+      - journaling-network
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+  # Redis 缓存（可选）
+  redis:
+    image: redis:7-alpine
+    container_name: journaling-materials-hub-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - journaling-network
+
+  # Nginx 反向代理
+  nginx:
+    image: nginx:alpine
+    container_name: journaling-materials-hub-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/ssl:/etc/nginx/ssl
+    depends_on:
+      - server
+    networks:
+      - journaling-network
+
+volumes:
+  mysql-data:
+    driver: local
+  redis-data:
+    driver: local
+
+networks:
+  journaling-network:
+    driver: bridge

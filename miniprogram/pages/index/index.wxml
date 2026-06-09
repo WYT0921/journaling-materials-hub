@@ -1,0 +1,152 @@
+<!-- pages/index/index.wxml -->
+<!-- 首页 - 素材流Feed页 -->
+
+<view class="container">
+  <!-- 顶部搜索栏 -->
+  <view class="search-bar">
+    <view class="search-input-wrapper">
+      <image class="search-icon" src="/assets/icons/search.png" mode="aspectFit"></image>
+      <input
+        class="search-input"
+        placeholder="搜索素材/风格/标签"
+        placeholder-class="search-placeholder"
+        value="{{keyword}}"
+        bindinput="onSearchInput"
+        bindconfirm="onSearchConfirm"
+      />
+    </view>
+  </view>
+
+  <!-- 筛选标签栏 -->
+  <scroll-view class="filter-scroll" scroll-x="true" show-scrollbar="false">
+    <view class="filter-chips">
+      <view
+        class="filter-chip {{activeCategory === '' ? 'active' : ''}}"
+        bindtap="onCategoryTap"
+        data-category=""
+      >
+        全部
+      </view>
+      <view
+        class="filter-chip {{activeCategory === '治愈系' ? 'active' : ''}}"
+        bindtap="onCategoryTap"
+        data-category="治愈系"
+      >
+        治愈系
+      </view>
+      <view
+        class="filter-chip {{activeCategory === '极简风' ? 'active' : ''}}"
+        bindtap="onCategoryTap"
+        data-category="极简风"
+      >
+        极简风
+      </view>
+      <view
+        class="filter-chip {{activeCategory === '胶带' ? 'active' : ''}}"
+        bindtap="onCategoryTap"
+        data-category="胶带"
+      >
+        胶带
+      </view>
+      <view
+        class="filter-chip {{activeCategory === 'PNG' ? 'active' : ''}}"
+        bindtap="onCategoryTap"
+        data-category="PNG"
+      >
+        PNG
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 素材瀑布流 -->
+  <scroll-view
+    class="material-scroll"
+    scroll-y="true"
+    bindscrolltolower="onScrollToLower"
+    refresher-enabled="true"
+    bindrefresherrefresh="onRefresh"
+    refresher-triggered="isRefreshing"
+  >
+    <!-- 加载状态 -->
+    <view class="loading-state" wx:if="{{isLoading && materials.length === 0}}">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">加载中...</text>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{!isLoading && materials.length === 0}}">
+      <image class="empty-icon" src="/assets/icons/empty.png" mode="aspectFit"></image>
+      <text class="empty-text">暂无素材</text>
+    </view>
+
+    <!-- 瀑布流布局 -->
+    <view class="waterfall" wx:if="{{materials.length > 0}}">
+      <!-- 左列 -->
+      <view class="waterfall-column">
+        <view
+          class="material-card"
+          wx:for="{{leftColumnMaterials}}"
+          wx:key="id"
+          bindtap="onMaterialTap"
+          data-id="{{item.id}}"
+        >
+          <view class="card-image-wrapper">
+            <image
+              class="card-image {{item.isPremium && !isPremium ? 'blurred' : ''}}"
+              src="{{item.thumbnailUrl}}"
+              mode="widthFix"
+              lazy-load="true"
+            ></image>
+            <!-- 会员标识 -->
+            <view class="premium-badge" wx:if="{{item.isPremium}}">
+              <text class="premium-text">VIP</text>
+            </view>
+          </view>
+          <view class="card-info">
+            <text class="card-title ellipsis">{{item.title}}</text>
+            <text class="card-category">{{item.category}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 右列 -->
+      <view class="waterfall-column">
+        <view
+          class="material-card"
+          wx:for="{{rightColumnMaterials}}"
+          wx:key="id"
+          bindtap="onMaterialTap"
+          data-id="{{item.id}}"
+        >
+          <view class="card-image-wrapper">
+            <image
+              class="card-image {{item.isPremium && !isPremium ? 'blurred' : ''}}"
+              src="{{item.thumbnailUrl}}"
+              mode="widthFix"
+              lazy-load="true"
+            ></image>
+            <!-- 会员标识 -->
+            <view class="premium-badge" wx:if="{{item.isPremium}}">
+              <text class="premium-text">VIP</text>
+            </view>
+          </view>
+          <view class="card-info">
+            <text class="card-title ellipsis">{{item.title}}</text>
+            <text class="card-category">{{item.category}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 加载更多 -->
+    <view class="load-more" wx:if="{{isLoading && materials.length > 0}}">
+      <view class="loading-spinner small"></view>
+      <text class="load-more-text">加载更多...</text>
+    </view>
+
+    <!-- 没有更多数据 -->
+    <view class="no-more" wx:if="{{!hasMore && materials.length > 0}}">
+      <text class="no-more-text">没有更多了</text>
+    </view>
+  </scroll-view>
+</view>

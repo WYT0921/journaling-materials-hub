@@ -1,0 +1,155 @@
+/* app.wxss - 全局样式 */
+
+/* 设计Token变量 */
+page {
+  /* 颜色Token */
+  --color-background: #FFFFFF;
+  --color-background-secondary: #F7F7F7;
+  --color-text-primary: #111111;
+  --color-text-secondary: #777777;
+  --color-border: #EEEEEE;
+  --color-accent: #111111;
+  --color-error: #FF4D4F;
+  --color-placeholder: #F2F2F2;
+
+  /* 字体Token */
+  --font-family: 'PingFang SC', 'SF Pro', sans-serif;
+  --font-size-xs: 24rpx;
+  --font-size-sm: 28rpx;
+  --font-size-base: 32rpx;
+  --font-size-lg: 36rpx;
+  --font-size-xl: 40rpx;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 600;
+
+  /* 间距Token */
+  --spacing-xs: 8rpx;
+  --spacing-sm: 16rpx;
+  --spacing-md: 32rpx;
+  --spacing-lg: 48rpx;
+  --spacing-xl: 64rpx;
+
+  /* 圆角Token */
+  --radius-sm: 16rpx;
+  --radius-md: 24rpx;
+  --radius-full: 200rpx;
+
+  /* 基础样式 */
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  background-color: var(--color-background);
+  line-height: 1.5;
+}
+
+/* 公共样式类 */
+.container {
+  padding: var(--spacing-md);
+}
+
+.text-primary {
+  color: var(--color-text-primary);
+}
+
+.text-secondary {
+  color: var(--color-text-secondary);
+}
+
+.text-bold {
+  font-weight: var(--font-weight-bold);
+}
+
+.bg-primary {
+  background-color: var(--color-background);
+}
+
+.bg-secondary {
+  background-color: var(--color-background-secondary);
+}
+
+/* 分割线 */
+.divider {
+  height: 2rpx;
+  background-color: var(--color-border);
+  margin: var(--spacing-md) 0;
+}
+
+/* 卡片样式 */
+.card {
+  background-color: var(--color-background);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.02);
+  overflow: hidden;
+}
+
+/* 按钮基础样式 */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 96rpx;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+}
+
+.btn-primary {
+  background-color: var(--color-accent);
+  color: var(--color-background);
+}
+
+.btn-secondary {
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  border: 2rpx solid var(--color-border);
+}
+
+/* 输入框样式 */
+.input {
+  height: 96rpx;
+  padding: 0 var(--spacing-md);
+  border: 2rpx solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+}
+
+/* Toast样式 */
+.toast {
+  position: fixed;
+  bottom: 200rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--color-text-primary);
+  color: var(--color-background);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+}
+
+/* 隐藏元素 */
+.hidden {
+  display: none;
+}
+
+/* 文本省略 */
+.ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 多行省略 */
+.ellipsis-2 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+/* 图片占位 */
+.image-placeholder {
+  background-color: var(--color-placeholder);
+  width: 100%;
+  height: 100%;
+}

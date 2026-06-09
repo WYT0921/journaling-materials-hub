@@ -1,0 +1,127 @@
+<!-- pages/detail/detail.wxml -->
+<!-- 素材详情页 -->
+
+<view class="container">
+  <!-- 顶部导航栏 -->
+  <view class="navbar">
+    <view class="navbar-back" bindtap="onBackTap">
+      <image class="back-icon" src="/assets/icons/back.png" mode="aspectFit"></image>
+    </view>
+    <view class="navbar-title">
+      <text class="title-text">素材详情</text>
+    </view>
+    <view class="navbar-placeholder"></view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view class="loading-state" wx:if="{{isLoading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- 内容区域 -->
+  <view class="content" wx:if="{{!isLoading && material}}">
+    <!-- 大图区域 -->
+    <view class="image-section">
+      <image
+        class="material-image {{!isPremium && material.isPremium ? 'blurred' : ''}}"
+        src="{{material.imageUrl}}"
+        mode="widthFix"
+        bindtap="onImagePreview"
+      ></image>
+
+      <!-- 模糊遮罩（非会员） -->
+      <view class="blur-overlay" wx:if="{{!isPremium && material.isPremium}}">
+        <view class="blur-content">
+          <image class="lock-icon" src="/assets/icons/lock.png" mode="aspectFit"></image>
+          <text class="blur-text">查看高清需开通会员</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 素材信息 -->
+    <view class="info-section">
+      <view class="info-header">
+        <text class="material-title">{{material.title}}</text>
+        <view class="premium-tag" wx:if="{{material.isPremium}}">
+          <text class="premium-tag-text">VIP</text>
+        </view>
+      </view>
+
+      <view class="info-meta">
+        <text class="meta-category">{{material.category}}</text>
+        <text class="meta-divider">·</text>
+        <text class="meta-downloads">{{material.downloadCount}}次下载</text>
+      </view>
+
+      <view class="info-description" wx:if="{{material.description}}">
+        <text class="description-text">{{material.description}}</text>
+      </view>
+
+      <!-- 标签 -->
+      <view class="info-tags" wx:if="{{material.tags && material.tags.length > 0}}">
+        <view class="tag-item" wx:for="{{material.tags}}" wx:key="*this">
+          <text class="tag-text">#{{item}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部操作栏 -->
+  <view class="bottom-bar" wx:if="{{!isLoading && material}}">
+    <!-- 非会员用户 -->
+    <view class="cta-button premium" wx:if="{{!isPremium && material.isPremium}}" bindtap="onUnlockTap">
+      <text class="cta-text">Unlock Premium</text>
+    </view>
+
+    <!-- 会员用户或免费素材 -->
+    <view class="cta-button download" wx:else bindtap="onDownloadTap">
+      <image class="download-icon" src="/assets/icons/download.png" mode="aspectFit"></image>
+      <text class="cta-text">立即下载</text>
+    </view>
+  </view>
+
+  <!-- 兑换弹窗 -->
+  <view class="redeem-modal" wx:if="{{showRedeemModal}}" bindtap="onModalClose">
+    <view class="modal-content" catchtap="onModalContentTap">
+      <view class="modal-header">
+        <text class="modal-title">开通会员</text>
+        <view class="modal-close" bindtap="onModalClose">
+          <image class="close-icon" src="/assets/icons/close.png" mode="aspectFit"></image>
+        </view>
+      </view>
+
+      <view class="modal-body">
+        <text class="modal-desc">输入兑换码即可开通会员，享受高清素材下载</text>
+
+        <view class="input-wrapper">
+          <input
+            class="redeem-input {{redeemError ? 'error' : ''}}"
+            placeholder="请输入兑换码"
+            placeholder-class="input-placeholder"
+            value="{{redeemCode}}"
+            bindinput="onRedeemInput"
+          />
+        </view>
+
+        <view class="error-message" wx:if="{{redeemError}}">
+          <text class="error-text">*该兑换码已被使用或不存在</text>
+        </view>
+
+        <view class="modal-actions">
+          <view class="modal-btn cancel" bindtap="onModalClose">
+            <text class="btn-text">取消</text>
+          </view>
+          <view class="modal-btn confirm" bindtap="onRedeemConfirm">
+            <text class="btn-text">立即兑换</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 下载成功提示 -->
+  <view class="toast" wx:if="{{showToast}}">
+    <text class="toast-text">{{toastText}}</text>
+  </view>
+</view>

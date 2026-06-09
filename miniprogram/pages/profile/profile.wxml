@@ -1,0 +1,202 @@
+<!-- pages/profile/profile.wxml -->
+<!-- 我的页面 -->
+
+<view class="container">
+  <!-- 顶部导航栏 -->
+  <view class="navbar">
+    <view class="navbar-title">
+      <text class="title-text">我的</text>
+    </view>
+    <view class="navbar-action" bindtap="onSettingsTap">
+      <image class="settings-icon" src="/assets/icons/settings.png" mode="aspectFit"></image>
+    </view>
+  </view>
+
+  <!-- 用户信息区域 -->
+  <view class="user-section">
+    <view class="user-info">
+      <view class="avatar-wrapper">
+        <image class="avatar" src="{{userInfo.avatarUrl || '/assets/icons/default-avatar.png'}}" mode="aspectFill"></image>
+        <view class="vip-badge" wx:if="{{isPremium}}">
+          <text class="vip-text">VIP</text>
+        </view>
+      </view>
+
+      <view class="user-details">
+        <text class="nickname">{{userInfo.nickname || '未登录'}}</text>
+        <view class="member-status" wx:if="{{isPremium}}">
+          <text class="status-text">VIP会员</text>
+          <text class="expire-text" wx:if="{{memberExpireTime}}">有效期至：{{memberExpireTime}}</text>
+        </view>
+        <view class="member-status normal" wx:else>
+          <text class="status-text">普通用户</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 统计信息 -->
+    <view class="stats-section">
+      <view class="stat-item">
+        <text class="stat-value">{{userStats.points || 0}}</text>
+        <text class="stat-label">积分</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <text class="stat-value">{{userStats.downloadCount || 0}}</text>
+        <text class="stat-label">下载</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <text class="stat-value">{{userStats.collectionCount || 0}}</text>
+        <text class="stat-label">收藏</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 会员中心 -->
+  <view class="section" wx:if="{{isPremium}}">
+    <view class="section-header">
+      <text class="section-title">会员中心</text>
+    </view>
+
+    <view class="member-card">
+      <view class="member-info">
+        <view class="member-type">
+          <text class="type-label">当前会员</text>
+          <text class="type-value">{{memberTypeText}}</text>
+        </view>
+        <view class="member-expire">
+          <text class="expire-label">到期时间</text>
+          <text class="expire-value">{{memberExpireTime || '永久'}}</text>
+        </view>
+      </view>
+
+      <view class="member-actions">
+        <view class="member-btn" bindtap="onRenewTap">
+          <text class="btn-text">续费会员</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 兑换入口 -->
+  <view class="section">
+    <view class="redeem-entry" bindtap="onRedeemTap">
+      <view class="redeem-info">
+        <image class="redeem-icon" src="/assets/icons/redeem.png" mode="aspectFit"></image>
+        <view class="redeem-text">
+          <text class="redeem-title">兑换会员</text>
+          <text class="redeem-desc">输入兑换码开通会员</text>
+        </view>
+      </view>
+      <image class="arrow-icon" src="/assets/icons/arrow-right.png" mode="aspectFit"></image>
+    </view>
+  </view>
+
+  <!-- 功能列表 -->
+  <view class="section">
+    <view class="menu-item" bindtap="onMenuTap" data-type="download">
+      <view class="menu-info">
+        <image class="menu-icon" src="/assets/icons/download-record.png" mode="aspectFit"></image>
+        <text class="menu-text">下载记录</text>
+      </view>
+      <image class="arrow-icon" src="/assets/icons/arrow-right.png" mode="aspectFit"></image>
+    </view>
+
+    <view class="menu-item" bindtap="onMenuTap" data-type="collection">
+      <view class="menu-info">
+        <image class="menu-icon" src="/assets/icons/collection.png" mode="aspectFit"></image>
+        <text class="menu-text">我的收藏</text>
+      </view>
+      <image class="arrow-icon" src="/assets/icons/arrow-right.png" mode="aspectFit"></image>
+    </view>
+
+    <view class="menu-item" bindtap="onMenuTap" data-type="feedback">
+      <view class="menu-info">
+        <image class="menu-icon" src="/assets/icons/feedback.png" mode="aspectFit"></image>
+        <text class="menu-text">意见反馈</text>
+      </view>
+      <image class="arrow-icon" src="/assets/icons/arrow-right.png" mode="aspectFit"></image>
+    </view>
+
+    <view class="menu-item" bindtap="onMenuTap" data-type="about">
+      <view class="menu-info">
+        <image class="menu-icon" src="/assets/icons/about.png" mode="aspectFit"></image>
+        <text class="menu-text">关于我们</text>
+      </view>
+      <image class="arrow-icon" src="/assets/icons/arrow-right.png" mode="aspectFit"></image>
+    </view>
+  </view>
+
+  <!-- 退出登录 -->
+  <view class="logout-section" wx:if="{{isLoggedIn}}">
+    <view class="logout-btn" bindtap="onLogoutTap">
+      <text class="logout-text">退出登录</text>
+    </view>
+  </view>
+
+  <!-- 兑换弹窗 -->
+  <view class="redeem-modal" wx:if="{{showRedeemModal}}" bindtap="onModalClose">
+    <view class="modal-content" catchtap="onModalContentTap">
+      <view class="modal-header">
+        <text class="modal-title">兑换会员</text>
+        <view class="modal-close" bindtap="onModalClose">
+          <image class="close-icon" src="/assets/icons/close.png" mode="aspectFit"></image>
+        </view>
+      </view>
+
+      <view class="modal-body">
+        <text class="modal-desc">输入兑换码即可开通或续费会员</text>
+
+        <view class="input-wrapper">
+          <input
+            class="redeem-input {{redeemError ? 'error' : ''}}"
+            placeholder="请输入兑换码"
+            placeholder-class="input-placeholder"
+            value="{{redeemCode}}"
+            bindinput="onRedeemInput"
+          />
+        </view>
+
+        <view class="error-message" wx:if="{{redeemError}}">
+          <text class="error-text">*该兑换码已被使用或不存在</text>
+        </view>
+
+        <view class="modal-actions">
+          <view class="modal-btn cancel" bindtap="onModalClose">
+            <text class="btn-text">取消</text>
+          </view>
+          <view class="modal-btn confirm" bindtap="onRedeemConfirm">
+            <text class="btn-text">立即兑换</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 激活成功弹窗 -->
+  <view class="success-modal" wx:if="{{showSuccessModal}}" bindtap="onSuccessModalClose">
+    <view class="success-content" catchtap="onSuccessModalContentTap">
+      <view class="success-icon-wrapper">
+        <text class="success-emoji">🎉</text>
+      </view>
+      <text class="success-title">兑换成功！</text>
+      <text class="success-desc">已成功激活年度高级特权权益</text>
+      <text class="success-expire">会员有效期至：{{newMemberExpireTime}}</text>
+
+      <view class="success-actions">
+        <view class="success-btn primary" bindtap="onStartDownloadTap">
+          <text class="btn-text">开始下载</text>
+        </view>
+        <view class="success-btn secondary" bindtap="onSuccessModalClose">
+          <text class="btn-text">稍后再说</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Toast提示 -->
+  <view class="toast" wx:if="{{showToast}}">
+    <text class="toast-text">{{toastText}}</text>
+  </view>
+</view>
