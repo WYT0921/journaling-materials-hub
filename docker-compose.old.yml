@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # 旧 Node.js 后端（保留，用于渐进式迁移）
+  # 后端服务
   server:
     build:
       context: ./server
@@ -29,34 +29,6 @@ services:
     volumes:
       - ./server/logs:/app/logs
 
-  # 新 SpringBoot 后端
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: journaling-materials-hub-backend
-    restart: unless-stopped
-    ports:
-      - "8080:8080"
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - DB_HOST=mysql
-      - DB_PORT=3306
-      - DB_USERNAME=journaling_user
-      - DB_PASSWORD=${DB_PASSWORD:-your_password}
-      - DB_NAME=journaling_materials_hub
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - JWT_SECRET=${JWT_SECRET:-your_jwt_secret_key_here}
-      - JWT_EXPIRES_IN=604800000
-      - WECHAT_APPID=${WECHAT_APPID}
-      - WECHAT_SECRET=${WECHAT_SECRET}
-    depends_on:
-      - mysql
-      - redis
-    networks:
-      - journaling-network
-
   # MySQL 数据库
   mysql:
     image: mysql:8.0
@@ -76,7 +48,7 @@ services:
       - journaling-network
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
 
-  # Redis 缓存
+  # Redis 缓存（可选）
   redis:
     image: redis:7-alpine
     container_name: journaling-materials-hub-redis
@@ -102,7 +74,6 @@ services:
       - ./nginx/ssl:/etc/nginx/ssl
     depends_on:
       - server
-      - backend
     networks:
       - journaling-network
 
