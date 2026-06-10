@@ -51,3 +51,9 @@ uploads/
 # 备份文件
 *.bak
 *.backup
+
+# 工作流工具
+.spec-workflow/
+
+# 微信开发者工具私有配置
+project.private.config.json
