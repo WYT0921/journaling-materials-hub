@@ -113,6 +113,24 @@ frontend/src/
 - `JWT_SECRET` — JWT 签名密钥（≥32 字符）
 - `WECHAT_APP_ID` / `WECHAT_APP_SECRET` — 微信小程序凭证
 
+## 开发流程
+
+### 按 Phase 推进（阶段式开发）
+- 严格按照 `docs/frontend-ui-dev-plan.md` 或 `plan.md` 定义的 Phase 顺序开发
+- **禁止跨阶段开发** — 完成一个 Phase 并验证通过后，再进入下一 Phase
+
+### 前后端并行开发
+- 每个 Phase 中，前端和后端的工作**同步进行**，不串行等待
+- 前端 `frontend/`（uni-app Vue 3）和后端 `backend/`（Spring Boot）的工作互不阻塞
+- 使用共享 API 文档 `docs/api.md` 对齐接口契约
+
+### 完成即测试
+- 每个 Phase 完成后，立即进行端到端验证：
+  - **前端**：`npm run dev:mp-weixin` 构建 → 微信开发者工具预览
+  - **后端**：`mvn test` 运行单元测试 + API 手动测试
+  - **联调**：前后端对接验证核心流程
+- 确认无误后标记 Phase 完成，再进入下一 Phase
+
 ## 项目文档
 
 | 文件 | 内容 |

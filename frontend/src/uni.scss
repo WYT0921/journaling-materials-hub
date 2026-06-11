@@ -51,3 +51,32 @@ $font-size-xxl: 44rpx;
 $shadow-sm: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
 $shadow-md: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
 $shadow-lg: 0 8rpx 24rpx rgba(0, 0, 0, 0.12);
+
+/* ===== UI 设计系统 v2 ===== */
+
+/* 背景渐变 — 梦幻粉绿 */
+$bg-gradient-start: #fef5f8;
+$bg-gradient-mid: #f5fdf5;
+$bg-gradient-end: #fff8f0;
+
+/* 星星浮动颜色 */
+$star-pink: #E8C4D4;
+$star-green: #C8E6C9;
+
+/* 毛玻璃色值 */
+$glass-navbar: rgba(255, 255, 255, 0.7);
+$glass-tabbar: rgba(255, 255, 255, 0.6);
+$glass-card: rgba(255, 255, 255, 0.9);
+$glass-elevated: rgba(255, 255, 255, 0.95);
+
+/* 极简边框 */
+$border-thin: #EEEEEE;
+$border-input-bg: #F7F7F7;
+
+/* 主色（Uber 黑白灰） */
+$uber-black: #000000;
+$uber-white: #ffffff;
+$uber-gray: #999999;
+
+/* 胶囊圆角 */
+$radius-capsule: 100rpx;

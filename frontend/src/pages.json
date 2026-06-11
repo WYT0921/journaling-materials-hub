@@ -24,6 +24,24 @@
       "style": {
         "navigationBarTitleText": "我的"
       }
+    },
+    {
+      "path": "pages/premium/index",
+      "style": {
+        "navigationBarTitleText": "会员中心"
+      }
+    },
+    {
+      "path": "pages/redeem/index",
+      "style": {
+        "navigationBarTitleText": "兑换会员"
+      }
+    },
+    {
+      "path": "pages/redeem/result",
+      "style": {
+        "navigationBarTitleText": "兑换结果"
+      }
     }
   ],
   "globalStyle": {
@@ -35,10 +53,11 @@
       "background": "#efeff4"
     },
     "mp-weixin": {
-      "navigationStyle": "default"
+      "navigationStyle": "custom"
     }
   },
   "tabBar": {
+    "custom": true,
     "color": "#999999",
     "selectedColor": "#333333",
     "borderStyle": "black",

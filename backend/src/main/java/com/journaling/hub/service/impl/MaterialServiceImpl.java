@@ -36,12 +36,24 @@ public class MaterialServiceImpl implements MaterialService {
             wrapper.eq(Material::getCategory, category);
         }
 
+        // 多关键词搜索（空格分隔，AND 关系提高精度）
         if (keyword != null && !keyword.isEmpty()) {
-            wrapper.and(w -> w
-                    .like(Material::getTitle, keyword)
-                    .or()
-                    .like(Material::getDescription, keyword)
-            );
+            String[] keywords = keyword.trim().split("\\s+");
+            wrapper.and(w -> {
+                for (int i = 0; i < keywords.length; i++) {
+                    String kw = "%" + keywords[i] + "%";
+                    if (i == 0) {
+                        w.like(Material::getTitle, keywords[i])
+                                .or().like(Material::getDescription, keywords[i]);
+                    } else {
+                        w.and(w2 -> w2
+                                .like(Material::getTitle, keywords[i])
+                                .or()
+                                .like(Material::getDescription, keywords[i])
+                        );
+                    }
+                }
+            });
         }
 
         wrapper.orderByDesc(Material::getSortOrder)
@@ -93,6 +105,12 @@ public class MaterialServiceImpl implements MaterialService {
             item.put("count", count);
             result.add(item);
         });
+
+        // 按素材数量降序排列
+        result.sort((a, b) -> Long.compare(
+                (Long) b.get("count"),
+                (Long) a.get("count")
+        ));
 
         return result;
     }

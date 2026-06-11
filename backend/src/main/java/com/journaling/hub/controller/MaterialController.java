@@ -30,7 +30,7 @@ public class MaterialController {
     @GetMapping
     public Result<?> listMaterials(
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int limit,
+            @RequestParam(defaultValue = "20") int limit,
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String keyword,
             HttpServletRequest request) {
@@ -58,7 +58,7 @@ public class MaterialController {
     public Result<?> searchMaterials(
             @RequestParam String keyword,
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int limit) {
+            @RequestParam(defaultValue = "20") int limit) {
 
         IPage<Material> materials = materialService.searchMaterials(keyword, page, limit);
         return Result.ok(PageResult.from(materials));

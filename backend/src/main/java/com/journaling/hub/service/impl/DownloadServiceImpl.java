@@ -79,8 +79,9 @@ public class DownloadServiceImpl implements DownloadService {
 
         Map<String, Object> result = new HashMap<>();
         result.put("url", material.getImageUrl());
-        result.put("filename", material.getTitle());
+        result.put("filename", material.getTitle() + ".png");
         result.put("materialId", materialId);
+        result.put("message", "下载成功");
 
         return result;
     }

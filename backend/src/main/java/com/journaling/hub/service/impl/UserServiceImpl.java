@@ -30,6 +30,12 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private DownloadMapper downloadMapper;
 
+    @Autowired
+    private com.journaling.hub.mapper.FavoriteMapper favoriteMapper;
+
+    @Autowired
+    private com.journaling.hub.mapper.MaterialMapper materialMapper;
+
     @Override
     public User findByOpenid(String openid) {
         return userMapper.selectOne(
@@ -111,7 +117,20 @@ public class UserServiceImpl implements UserService {
         Map<String, Object> stats = new HashMap<>();
         stats.put("points", user.getPoints());
         stats.put("downloadCount", downloadCount.intValue());
-        stats.put("collectionCount", 0); // TODO: 实现收藏功能后更新
+
+        // 统计收藏数
+        Long collectionCount = favoriteMapper.selectCount(
+                new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.journaling.hub.entity.Favorite>()
+                        .eq(com.journaling.hub.entity.Favorite::getUserId, userId)
+        );
+        stats.put("collectionCount", collectionCount.intValue());
+
+        // 素材总数
+        Long materialCount = materialMapper.selectCount(
+                new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.journaling.hub.entity.Material>()
+                        .eq(com.journaling.hub.entity.Material::getStatus, 1)
+        );
+        stats.put("materialCount", materialCount.intValue());
 
         return stats;
     }

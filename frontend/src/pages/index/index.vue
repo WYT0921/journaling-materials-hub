@@ -1,13 +1,23 @@
 <template>
   <view class="page-index">
+    <!-- 毛玻璃导航栏 -->
+    <GlassNavBar title="发现 · Discover">
+      <template #right>
+        <view class="notif-btn" @tap="handleNotifTap">
+          <text class="notif-icon">🔔</text>
+        </view>
+      </template>
+    </GlassNavBar>
+
     <!-- 搜索栏 -->
     <view class="search-bar">
       <view class="search-input-wrapper">
-        <image class="search-icon" src="/static/icons/search.png" mode="aspectFit" />
+        <text class="search-icon-text">🔍</text>
         <input
           class="search-input"
           v-model="searchKeyword"
           placeholder="搜索素材"
+          placeholder-style="color: #ccc; font-size: 26rpx;"
           confirm-type="search"
           @confirm="handleSearch"
           @input="handleSearchInput"
@@ -19,11 +29,14 @@
         >
           <text class="clear-icon">×</text>
         </view>
+        <view class="search-filter-btn" @tap="handleFilterTap">
+          <text class="filter-icon">☰</text>
+        </view>
       </view>
     </view>
 
-    <!-- 分类筛选 -->
-    <scroll-view class="category-scroll" scroll-x enable-flex>
+    <!-- 分类 Chips -->
+    <scroll-view class="category-scroll" scroll-x enable-flex show-scrollbar="false">
       <view class="category-list">
         <view
           class="category-item"
@@ -34,13 +47,12 @@
         </view>
         <view
           v-for="item in materialStore.categories"
-          :key="item.category"
+          :key="item.category || item.name"
           class="category-item"
-          :class="{ active: materialStore.activeCategory === item.category }"
-          @tap="handleCategoryTap(item.category)"
+          :class="{ active: materialStore.activeCategory === (item.category || item.name) }"
+          @tap="handleCategoryTap(item.category || item.name)"
         >
-          <text class="category-text">{{ item.category }}</text>
-          <text class="category-count">({{ item.count }})</text>
+          <text class="category-text">{{ item.category || item.name }}</text>
         </view>
       </view>
     </scroll-view>
@@ -93,9 +105,11 @@
         text="加载更多..."
       />
 
-      <!-- 没有更多 -->
-      <view v-if="!materialStore.hasMore && !materialStore.isEmpty" class="no-more">
-        <text class="no-more-text">没有更多了</text>
+      <!-- 已到底分隔线 -->
+      <view v-if="!materialStore.hasMore && !materialStore.isEmpty" class="divider-end">
+        <view class="divider-line" />
+        <text class="divider-text">已到底了</text>
+        <view class="divider-line" />
       </view>
     </scroll-view>
   </view>
@@ -109,6 +123,7 @@ import { useUserStore } from '../../stores/user'
 import MaterialCard from '../../components/MaterialCard.vue'
 import LoadingSpinner from '../../components/LoadingSpinner.vue'
 import EmptyState from '../../components/EmptyState.vue'
+import GlassNavBar from '../../components/GlassNavBar.vue'
 
 const materialStore = useMaterialStore()
 const userStore = useUserStore()
@@ -144,7 +159,6 @@ const handleSearch = () => {
 // 搜索输入
 const handleSearchInput = (e) => {
   searchKeyword.value = e.detail.value
-  // 实时搜索（防抖）
   if (!searchKeyword.value.trim()) {
     materialStore.searchMaterials('')
   }
@@ -180,6 +194,16 @@ const handleMaterialTap = (material) => {
   })
 }
 
+// 通知按钮
+const handleNotifTap = () => {
+  uni.showToast({ title: '暂无新通知', icon: 'none' })
+}
+
+// 筛选按钮
+const handleFilterTap = () => {
+  uni.showToast({ title: '筛选功能开发中', icon: 'none' })
+}
+
 // 下拉刷新（uni-app 生命周期）
 onPullDownRefresh(() => {
   handleRefresh()
@@ -192,35 +216,42 @@ onPullDownRefresh(() => {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: #f5f5f5;
 }
 
+/* ===== 搜索栏 ===== */
 .search-bar {
-  padding: 20rpx;
-  background: #ffffff;
+  padding: 16rpx 24rpx;
+  position: relative;
+  z-index: 10;
 }
 
 .search-input-wrapper {
   display: flex;
   align-items: center;
-  background: #f5f5f5;
-  border-radius: 40rpx;
-  padding: 0 24rpx;
-  height: 72rpx;
+  background: #F7F7F7;
+  border-radius: 100rpx;
+  padding: 0 20rpx;
+  height: 64rpx;
+  border: 1rpx solid transparent;
+  transition: background 0.2s, border-color 0.2s;
 }
 
-.search-icon {
-  width: 32rpx;
-  height: 32rpx;
-  margin-right: 16rpx;
-  opacity: 0.5;
+.search-input-wrapper:focus-within {
+  background: #ffffff;
+  border-color: #000;
+}
+
+.search-icon-text {
+  font-size: 26rpx;
+  margin-right: 12rpx;
 }
 
 .search-input {
   flex: 1;
-  height: 72rpx;
-  font-size: 28rpx;
-  color: #333333;
+  height: 64rpx;
+  font-size: 26rpx;
+  color: #333;
+  background: transparent;
 }
 
 .clear-button {
@@ -229,54 +260,68 @@ onPullDownRefresh(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-right: 8rpx;
 }
 
 .clear-icon {
   font-size: 32rpx;
-  color: #999999;
+  color: #999;
 }
 
+.search-filter-btn {
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 4rpx;
+}
+
+.filter-icon {
+  font-size: 28rpx;
+  color: #666;
+}
+
+/* ===== 分类 Chips ===== */
 .category-scroll {
-  background: #ffffff;
   white-space: nowrap;
-  border-bottom: 1rpx solid #f0f0f0;
+  position: relative;
+  z-index: 10;
 }
 
 .category-list {
   display: inline-flex;
-  padding: 16rpx 20rpx;
+  padding: 12rpx 24rpx;
   gap: 16rpx;
 }
 
 .category-item {
   display: inline-flex;
   align-items: center;
-  padding: 12rpx 24rpx;
-  background: #f5f5f5;
+  padding: 10rpx 28rpx;
   border-radius: 32rpx;
   white-space: nowrap;
+  /* 未选态：1px 极淡边框 */
+  border: 1rpx solid #EEEEEE;
+  background: transparent;
 
   &.active {
-    background: #333333;
+    /* 选中态：黑底白字反显 */
+    background: #000;
+    border-color: #000;
 
-    .category-text,
-    .category-count {
-      color: #ffffff;
+    .category-text {
+      color: #fff;
     }
   }
 }
 
 .category-text {
   font-size: 24rpx;
-  color: #666666;
+  color: #666;
 }
 
-.category-count {
-  font-size: 20rpx;
-  color: #999999;
-  margin-left: 4rpx;
-}
-
+/* ===== 素材瀑布流 ===== */
 .material-list {
   flex: 1;
   height: 0;
@@ -284,7 +329,7 @@ onPullDownRefresh(() => {
 
 .waterfall {
   display: flex;
-  padding: 16rpx;
+  padding: 16rpx 20rpx;
   gap: 16rpx;
 }
 
@@ -294,13 +339,24 @@ onPullDownRefresh(() => {
   flex-direction: column;
 }
 
-.no-more {
-  padding: 32rpx;
-  text-align: center;
+/* ===== 已到底分隔线 ===== */
+.divider-end {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40rpx 60rpx;
+  gap: 20rpx;
 }
 
-.no-more-text {
-  font-size: 24rpx;
-  color: #999999;
+.divider-line {
+  flex: 1;
+  height: 1rpx;
+  background: #EEEEEE;
+}
+
+.divider-text {
+  font-size: 22rpx;
+  color: #ccc;
+  white-space: nowrap;
 }
 </style>

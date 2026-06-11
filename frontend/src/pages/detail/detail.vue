@@ -1,100 +1,154 @@
 <template>
   <view class="page-detail">
+    <!-- 毛玻璃导航栏 -->
+    <GlassNavBar title="素材详情" :show-back="true">
+      <template #right>
+        <view class="nav-action" @tap="handleShare">
+          <text class="nav-action-icon">⋯</text>
+        </view>
+      </template>
+    </GlassNavBar>
+
     <!-- 加载中 -->
     <LoadingSpinner v-if="isLoading" />
 
     <!-- 素材详情 -->
     <view v-else-if="material" class="detail-content">
-      <!-- 图片区域 -->
-      <view class="image-wrapper">
+      <!-- 核心大图区 -->
+      <view class="image-section">
         <image
           class="material-image"
           :src="material.imageUrl"
           mode="widthFix"
           @tap="handleImagePreview"
         />
-        <!-- 模糊遮罩 -->
-        <view v-if="material.isBlurred" class="blur-overlay">
-          <view class="blur-content">
-            <image class="lock-icon" src="/static/icons/lock.png" mode="aspectFit" />
-            <text class="blur-text">开通会员查看高清原图</text>
-            <button class="unlock-button" @tap="handleUnlock">
-              <text class="unlock-text">立即开通</text>
-            </button>
+
+        <!-- VIP 专属角标（非会员查看会员素材时） -->
+        <view v-if="showVipBadge" class="vip-corner-badge">
+          <text class="vip-corner-text">会员专属</text>
+        </view>
+
+        <!-- 会员素材渐变遮罩提示（非会员） -->
+        <view v-if="material.isBlurred" class="gradient-overlay">
+          <view class="overlay-content">
+            <text class="overlay-text">查看高清原图需加入会员</text>
           </view>
         </view>
       </view>
 
       <!-- 信息区域 -->
       <view class="info-section">
-        <text class="material-title">{{ material.title }}</text>
-        <view class="material-meta">
-          <text class="meta-category">{{ material.category }}</text>
-          <text class="meta-downloads">{{ material.downloadCount || 0 }} 次下载</text>
+        <!-- 分类标签 -->
+        <view class="info-tags">
+          <text class="info-category">{{ material.category }}</text>
         </view>
+
+        <!-- 标题 -->
+        <text class="material-title">{{ material.title }}</text>
+
+        <!-- 作者+数据 -->
+        <view class="material-meta">
+          <view class="meta-author">
+            <view class="author-avatar" />
+            <text class="author-name">手账控Mori</text>
+          </view>
+          <view class="meta-stats">
+            <text class="stat-item">❤ {{ material.downloadCount || 0 }}</text>
+            <text class="stat-divider">·</text>
+            <text class="stat-item">↓ {{ material.downloadCount || 0 }}</text>
+          </view>
+        </view>
+
+        <!-- 描述 -->
         <text v-if="material.description" class="material-desc">{{ material.description }}</text>
 
         <!-- 标签 -->
         <view v-if="material.tags && material.tags.length" class="tags-wrapper">
-          <view
-            v-for="(tag, index) in material.tags"
-            :key="index"
-            class="tag-item"
-          >
+          <view v-for="(tag, index) in material.tags" :key="index" class="tag-item">
             <text class="tag-text">{{ tag }}</text>
           </view>
         </view>
       </view>
 
-      <!-- 操作按钮 -->
-      <view class="action-buttons">
-        <button class="action-button preview-button" @tap="handleImagePreview">
-          <text class="button-text">预览大图</text>
-        </button>
-        <button
-          class="action-button download-button"
-          :class="{ disabled: material.isPremium && !userStore.isPremium }"
-          @tap="handleDownload"
-        >
-          <text class="button-text">下载素材</text>
-        </button>
-      </view>
-
-      <!-- 兑换入口 -->
-      <view v-if="!userStore.isPremium" class="redeem-entry" @tap="showRedeemModal = true">
-        <text class="redeem-text">有兑换码？点击兑换会员</text>
-        <text class="redeem-arrow">></text>
-      </view>
+      <!-- 底部安全区（给CTA栏让位） -->
+      <view class="bottom-spacer" />
     </view>
 
     <!-- 错误状态 -->
-    <EmptyState v-else text="素材不存在" />
+    <EmptyState v-else text="素材不存在或已下架" />
 
-    <!-- 兑换弹窗 -->
-    <RedeemModal
-      v-model:visible="showRedeemModal"
-      @success="handleRedeemSuccess"
-    />
+    <!-- 底部 CTA 栏（毛玻璃） -->
+    <view v-if="material" class="cta-bar safe-area-bottom">
+      <view v-if="isVipOnly && !userStore.isPremium" class="cta-row">
+        <!-- VIP素材非会员：双 CTA -->
+        <button class="cta-btn cta-outline" @tap="handlePreview">
+          <text class="cta-outline-text">预览</text>
+        </button>
+        <button class="cta-btn cta-primary" @tap="handleUnlock">
+          <text class="cta-primary-text">解锁下载</text>
+        </button>
+      </view>
+      <view v-else class="cta-row">
+        <!-- 免费素材 或 会员查看自己的素材：单 CTA -->
+        <button class="cta-btn cta-primary-full" @tap="handleDownload">
+          <text class="cta-primary-text">下载素材</text>
+        </button>
+      </view>
+    </view>
+
+    <!-- Unlock Premium 半屏弹窗 -->
+    <BottomSheet
+      v-model:visible="showUnlockSheet"
+      title="解锁会员"
+    >
+      <view class="unlock-content">
+        <view class="unlock-icon-wrapper">
+          <text class="unlock-crown">👑</text>
+        </view>
+        <text class="unlock-desc">开通会员即可畅享所有高清素材与创作工具</text>
+      </view>
+      <template #footer>
+        <view class="unlock-footer">
+          <button class="unlock-btn-primary" @tap="handleGoRedeem">
+            <text class="unlock-btn-text">解锁会员</text>
+          </button>
+          <button class="unlock-btn-cancel" @tap="showUnlockSheet = false">
+            <text class="unlock-cancel-text">取消</text>
+          </button>
+        </view>
+      </template>
+    </BottomSheet>
   </view>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { useUserStore } from '../../stores/user'
 import { getMaterialDetail } from '../../api/material'
 import { downloadMaterial } from '../../api/download'
-import { requireLogin, requirePremium } from '../../utils/auth'
+import { requireLogin } from '../../utils/auth'
+import GlassNavBar from '../../components/GlassNavBar.vue'
 import LoadingSpinner from '../../components/LoadingSpinner.vue'
 import EmptyState from '../../components/EmptyState.vue'
-import RedeemModal from '../../components/RedeemModal.vue'
+import BottomSheet from '../../components/BottomSheet.vue'
 
 const userStore = useUserStore()
 
 const materialId = ref(null)
 const material = ref(null)
 const isLoading = ref(true)
-const showRedeemModal = ref(false)
+const showUnlockSheet = ref(false)
+
+// 是否为会员专属素材
+const isVipOnly = computed(() => {
+  return material.value?.isPremium
+})
+
+// 是否显示 VIP 角标（VIP素材 + 非会员）
+const showVipBadge = computed(() => {
+  return material.value?.isPremium && !userStore.isPremium
+})
 
 // 页面加载
 onLoad((options) => {
@@ -110,17 +164,8 @@ const loadMaterialDetail = async () => {
     isLoading.value = true
     const result = await getMaterialDetail(materialId.value)
     material.value = result
-
-    // 设置页面标题
-    uni.setNavigationBarTitle({
-      title: result.title || '素材详情'
-    })
   } catch (error) {
     console.error('加载素材详情失败:', error)
-    uni.showToast({
-      title: '加载失败',
-      icon: 'none'
-    })
   } finally {
     isLoading.value = false
   }
@@ -129,49 +174,46 @@ const loadMaterialDetail = async () => {
 // 图片预览
 const handleImagePreview = () => {
   if (!material.value) return
-
-  // 如果是模糊图片，提示开通会员
   if (material.value.isBlurred) {
-    handleUnlock()
+    showUnlockSheet.value = true
     return
   }
-
   uni.previewImage({
     urls: [material.value.imageUrl],
     current: material.value.imageUrl
   })
 }
 
-// 解锁（开通会员）
+// 预览按钮（VIP非会员）
+const handlePreview = () => {
+  showUnlockSheet.value = true
+}
+
+// 解锁下载
 const handleUnlock = () => {
   if (!requireLogin()) return
-  showRedeemModal.value = true
+  showUnlockSheet.value = true
+}
+
+// 跳转兑换页
+const handleGoRedeem = () => {
+  showUnlockSheet.value = false
+  uni.navigateTo({ url: '/pages/redeem/index' })
 }
 
 // 下载素材
 const handleDownload = async () => {
   if (!requireLogin()) return
 
-  // 检查是否为付费素材
+  // 会员检查
   if (material.value.isPremium && !userStore.isPremium) {
-    uni.showModal({
-      title: '会员专享',
-      content: '此素材需要会员权限才能下载，是否开通会员？',
-      success: (res) => {
-        if (res.confirm) {
-          showRedeemModal.value = true
-        }
-      }
-    })
+    showUnlockSheet.value = true
     return
   }
 
   try {
     uni.showLoading({ title: '下载中...' })
-
     const result = await downloadMaterial(materialId.value)
-
-    // 下载文件
     const downloadRes = await new Promise((resolve, reject) => {
       uni.downloadFile({
         url: result.url,
@@ -181,7 +223,6 @@ const handleDownload = async () => {
     })
 
     if (downloadRes.statusCode === 200) {
-      // 保存到相册
       await new Promise((resolve, reject) => {
         uni.saveImageToPhotosAlbum({
           filePath: downloadRes.tempFilePath,
@@ -189,10 +230,11 @@ const handleDownload = async () => {
           fail: (err) => reject(err)
         })
       })
-
+      // 黑底白字 Toast
       uni.showToast({
-        title: '已保存到相册',
-        icon: 'success'
+        title: '已保存至相册',
+        icon: 'none',
+        duration: 2000
       })
     } else {
       throw new Error('下载失败')
@@ -200,7 +242,7 @@ const handleDownload = async () => {
   } catch (error) {
     console.error('下载失败:', error)
     uni.showToast({
-      title: error.message || '下载失败',
+      title: error.message || '下载失败，请重试',
       icon: 'none'
     })
   } finally {
@@ -208,27 +250,24 @@ const handleDownload = async () => {
   }
 }
 
-// 兑换成功
-const handleRedeemSuccess = () => {
-  // 刷新素材详情（可能已解锁）
-  loadMaterialDetail()
+// 分享
+const handleShare = () => {
+  uni.showToast({ title: '功能开发中', icon: 'none' })
 }
 </script>
 
 <style lang="scss" scoped>
 .page-detail {
   min-height: 100vh;
-  background: #f5f5f5;
+  padding-bottom: 120rpx; /* 给底部CTA栏让位 */
 }
 
-.detail-content {
-  padding-bottom: 40rpx;
-}
-
-.image-wrapper {
+/* ===== 核心大图区 ===== */
+.image-section {
   position: relative;
   width: 100%;
-  background: #ffffff;
+  background: #fff;
+  overflow: hidden;
 }
 
 .material-image {
@@ -236,165 +275,314 @@ const handleRedeemSuccess = () => {
   display: block;
 }
 
-.blur-overlay {
+/* VIP 专属角标（左上角黑底白字） */
+.vip-corner-badge {
   position: absolute;
-  top: 0;
+  top: 24rpx;
+  left: 24rpx;
+  background: #000;
+  padding: 6rpx 18rpx;
+  border-radius: 6rpx;
+  z-index: 2;
+}
+
+.vip-corner-text {
+  font-size: 22rpx;
+  color: #fff;
+  font-weight: 600;
+}
+
+/* 渐变遮罩提示 */
+.gradient-overlay {
+  position: absolute;
+  bottom: 0;
   left: 0;
   right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(20px);
+  height: 120rpx;
+  background: linear-gradient(transparent, rgba(0,0,0,0.4));
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-end;
+  padding-bottom: 20rpx;
 }
 
-.blur-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 24rpx;
+.overlay-content {
+  padding: 0 24rpx;
 }
 
-.lock-icon {
-  width: 80rpx;
-  height: 80rpx;
-  opacity: 0.6;
+.overlay-text {
+  font-size: 24rpx;
+  color: #fff;
+  opacity: 0.9;
 }
 
-.blur-text {
-  font-size: 28rpx;
-  color: #666666;
-}
-
-.unlock-button {
-  background: #333333;
-  color: #ffffff;
-  border-radius: 40rpx;
-  padding: 16rpx 48rpx;
-}
-
-.unlock-text {
-  font-size: 28rpx;
-  font-weight: 500;
-}
-
+/* ===== 信息区域 ===== */
 .info-section {
-  background: #ffffff;
-  padding: 32rpx;
-  margin-top: 16rpx;
+  padding: 28rpx 28rpx 32rpx;
+  position: relative;
+  z-index: 1;
+}
+
+.info-tags {
+  display: flex;
+  gap: 12rpx;
+  margin-bottom: 12rpx;
+}
+
+.info-category {
+  font-size: 22rpx;
+  color: #999;
+  background: rgba(255,255,255,0.7);
+  padding: 4rpx 14rpx;
+  border-radius: 6rpx;
+  border: 1rpx solid #eee;
 }
 
 .material-title {
   font-size: 36rpx;
-  font-weight: bold;
-  color: #333333;
+  font-weight: 600;
+  color: #333;
   line-height: 1.4;
 }
 
 .material-meta {
   display: flex;
   align-items: center;
-  gap: 16rpx;
+  justify-content: space-between;
   margin-top: 16rpx;
+  gap: 16rpx;
 }
 
-.meta-category {
-  font-size: 24rpx;
-  color: #ffffff;
-  background: #333333;
-  padding: 6rpx 16rpx;
-  border-radius: 6rpx;
+.meta-author {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
 }
 
-.meta-downloads {
+.author-avatar {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  background: #ddd;
+}
+
+.author-name {
   font-size: 24rpx;
-  color: #999999;
+  color: #666;
+}
+
+.meta-stats {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.stat-item {
+  font-size: 22rpx;
+  color: #999;
+}
+
+.stat-divider {
+  font-size: 22rpx;
+  color: #ccc;
 }
 
 .material-desc {
-  font-size: 28rpx;
-  color: #666666;
+  font-size: 26rpx;
+  color: #666;
   line-height: 1.6;
-  margin-top: 24rpx;
+  margin-top: 20rpx;
 }
 
 .tags-wrapper {
   display: flex;
   flex-wrap: wrap;
   gap: 12rpx;
-  margin-top: 24rpx;
+  margin-top: 20rpx;
 }
 
 .tag-item {
-  background: #f5f5f5;
-  padding: 8rpx 20rpx;
+  background: rgba(255,255,255,0.7);
+  padding: 6rpx 18rpx;
   border-radius: 6rpx;
+  border: 1rpx solid #eee;
 }
 
 .tag-text {
-  font-size: 24rpx;
-  color: #666666;
+  font-size: 22rpx;
+  color: #666;
 }
 
-.action-buttons {
+/* 底部占位 */
+.bottom-spacer {
+  height: 40rpx;
+}
+
+/* ===== 底部 CTA 栏（毛玻璃） ===== */
+.cta-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.7);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border-top: 0.5px solid rgba(0, 0, 0, 0.05);
+  padding: 16rpx 28rpx;
+  padding-bottom: calc(16rpx + constant(safe-area-inset-bottom));
+  padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
+}
+
+@supports not ((-webkit-backdrop-filter: blur(20px)) or (backdrop-filter: blur(20px))) {
+  .cta-bar {
+    background: rgba(255, 255, 255, 0.85);
+  }
+}
+
+.cta-row {
   display: flex;
-  gap: 24rpx;
-  padding: 32rpx;
+  gap: 20rpx;
 }
 
-.action-button {
+.cta-btn {
   flex: 1;
-  height: 88rpx;
+  height: 80rpx;
   border-radius: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  border: none;
+  line-height: 80rpx;
+}
+
+.cta-btn::after {
+  border: none;
+}
+
+/* 黑色主按钮 */
+.cta-primary {
+  background: #000;
+}
+
+.cta-primary-full {
+  background: #000;
+  flex: 1;
+}
+
+.cta-primary-text {
+  font-size: 28rpx;
+  color: #fff;
+  font-weight: 500;
+}
+
+/* 边框按钮 */
+.cta-outline {
+  background: transparent;
+  border: 2rpx solid #000;
+}
+
+.cta-outline-text {
+  font-size: 28rpx;
+  color: #000;
+  font-weight: 500;
+}
+
+/* ===== Unlock Premium 弹窗 ===== */
+.unlock-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32rpx 0;
+  gap: 20rpx;
+}
+
+.unlock-icon-wrapper {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 50%;
+  background: #f5f5f5;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.preview-button {
-  background: #ffffff;
-  border: 2rpx solid #333333;
-
-  .button-text {
-    color: #333333;
-  }
+.unlock-crown {
+  font-size: 44rpx;
 }
 
-.download-button {
-  background: #333333;
-
-  &.disabled {
-    background: #cccccc;
-  }
-
-  .button-text {
-    color: #ffffff;
-  }
+.unlock-desc {
+  font-size: 26rpx;
+  color: #666;
+  text-align: center;
+  line-height: 1.5;
+  padding: 0 20rpx;
 }
 
-.button-text {
-  font-size: 28rpx;
+.unlock-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  padding: 8rpx 0;
+}
+
+.unlock-btn-primary {
+  height: 88rpx;
+  background: #000;
+  border-radius: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  padding: 0;
+  margin: 0;
+  line-height: 88rpx;
+}
+
+.unlock-btn-primary::after {
+  border: none;
+}
+
+.unlock-btn-text {
+  font-size: 30rpx;
+  color: #fff;
   font-weight: 500;
 }
 
-.redeem-entry {
+.unlock-btn-cancel {
+  height: 72rpx;
+  background: transparent;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  background: #ffffff;
-  padding: 24rpx 32rpx;
-  margin: 0 32rpx;
-  border-radius: 12rpx;
+  justify-content: center;
+  border: none;
+  padding: 0;
+  margin: 0;
+  line-height: 72rpx;
 }
 
-.redeem-text {
-  font-size: 28rpx;
-  color: #666666;
+.unlock-btn-cancel::after {
+  border: none;
 }
 
-.redeem-arrow {
+.unlock-cancel-text {
   font-size: 28rpx;
-  color: #999999;
+  color: #999;
+}
+
+/* ===== 导航栏操作按钮 ===== */
+.nav-action {
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-action-icon {
+  font-size: 36rpx;
+  color: #333;
+  font-weight: 700;
 }
 </style>
