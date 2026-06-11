@@ -71,7 +71,7 @@ services:
       - MYSQL_PASSWORD=${DB_PASSWORD:-your_password}
     volumes:
       - mysql-data:/var/lib/mysql
-      - ./server/migrations:/docker-entrypoint-initdb.d
+      - ./backend/src/main/resources/db/init.sql:/docker-entrypoint-initdb.d/01-init.sql
     networks:
       - journaling-network
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci

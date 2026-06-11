@@ -49,11 +49,9 @@
     "navigationBarTitleText": "手账素材",
     "navigationBarBackgroundColor": "#FFFFFF",
     "backgroundColor": "#F5F5F5",
+    "navigationStyle": "custom",
     "app-plus": {
       "background": "#efeff4"
-    },
-    "mp-weixin": {
-      "navigationStyle": "custom"
     }
   },
   "tabBar": {
@@ -66,20 +64,20 @@
       {
         "pagePath": "pages/index/index",
         "text": "首页",
-        "iconPath": "src/static/icons/home.png",
-        "selectedIconPath": "src/static/icons/home-active.png"
+        "iconPath": "static/icons/home.png",
+        "selectedIconPath": "static/icons/home-active.png"
       },
       {
         "pagePath": "pages/tools/tools",
         "text": "工具",
-        "iconPath": "src/static/icons/tools.png",
-        "selectedIconPath": "src/static/icons/tools-active.png"
+        "iconPath": "static/icons/tools.png",
+        "selectedIconPath": "static/icons/tools-active.png"
       },
       {
         "pagePath": "pages/profile/profile",
         "text": "我的",
-        "iconPath": "src/static/icons/profile.png",
-        "selectedIconPath": "src/static/icons/profile-active.png"
+        "iconPath": "static/icons/profile.png",
+        "selectedIconPath": "static/icons/profile-active.png"
       }
     ]
   }

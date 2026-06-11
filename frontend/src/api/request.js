@@ -6,8 +6,11 @@
 // API 基础地址
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'
 
-// Mock 模式
+// Mock 模式：VITE_API_MODE=mock 时启用，否则使用真实 API
 const IS_MOCK = import.meta.env.VITE_API_MODE === 'mock'
+
+// Mock 数据加载器
+import { getMockData as mockGetMockData } from '../mock/index.js'
 
 /**
  * 封装 uni.request
@@ -90,34 +93,15 @@ const request = (options) => {
 const handleMockRequest = (options, resolve, reject) => {
   // 模拟网络延迟
   setTimeout(() => {
-    const url = options.url
-    let mockData = null
+    const mockData = mockGetMockData(options.url)
 
-    // 根据 URL 匹配 Mock 数据
-    if (url.includes('/user/login')) {
-      mockData = require('../../mock/user-login.json')
-    } else if (url.includes('/user/profile')) {
-      mockData = require('../../mock/user-profile.json')
-    } else if (url.includes('/user/stats')) {
-      mockData = require('../../mock/user-stats.json')
-    } else if (url.includes('/materials/categories')) {
-      mockData = require('../../mock/materials-categories.json')
-    } else if (url.includes('/materials/search')) {
-      mockData = require('../../mock/materials-list.json')
-    } else if (url.includes('/materials/')) {
-      mockData = require('../../mock/material-detail.json')
-    } else if (url.includes('/materials')) {
-      mockData = require('../../mock/materials-list.json')
-    } else if (url.includes('/redeem/verify')) {
-      mockData = require('../../mock/redeem-verify.json')
-    } else if (url.includes('/redeem/activate')) {
-      mockData = require('../../mock/redeem-activate.json')
-    } else if (url.includes('/download/records')) {
-      mockData = require('../../mock/download-record.json')
-    }
-
-    if (mockData) {
+    if (mockData && mockData.success) {
       resolve(mockData.data)
+    } else if (mockData) {
+      reject({
+        message: mockData.error?.message || '请求失败',
+        code: mockData.error?.statusCode
+      })
     } else {
       reject({ message: 'Mock 数据不存在', code: 404 })
     }

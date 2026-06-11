@@ -9,9 +9,9 @@ spring:
   application:
     name: journaling-materials-hub
   datasource:
-    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:journaling_materials_hub}?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://${DB_HOST:111.229.148.112}:${DB_PORT:3306}/${DB_NAME:journaling_materials_hub}?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
     username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:}
+    password: ${DB_PASSWORD:0921Txwjp%40}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       minimum-idle: 5
@@ -19,6 +19,11 @@ spring:
       idle-timeout: 300000
       max-lifetime: 1800000
       connection-timeout: 30000
+  flyway:
+    enabled: true
+    locations: classpath:db
+    baseline-on-migrate: true
+    baseline-version: 3
   data:
     redis:
       host: ${REDIS_HOST:localhost}
@@ -31,6 +36,8 @@ spring:
           max-idle: 8
           min-idle: 0
           max-wait: -1ms
+      # 禁用 Redis 连接测试（Redis 不可用时不影响启动）
+      timeout: 5000ms
   servlet:
     multipart:
       max-file-size: 10MB

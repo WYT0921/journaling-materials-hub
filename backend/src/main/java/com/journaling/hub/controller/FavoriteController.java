@@ -33,7 +33,7 @@ public class FavoriteController {
             HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
         if (userId == null) {
-            return Result.error(401, "请先登录");
+            return Result.error("请先登录", 401);
         }
         boolean isFavorited = favoriteService.toggleFavorite(userId, materialId);
         Map<String, Object> result = new HashMap<>();
@@ -71,7 +71,7 @@ public class FavoriteController {
             HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
         if (userId == null) {
-            return Result.error(401, "请先登录");
+            return Result.error("请先登录", 401);
         }
         IPage<Favorite> favorites = favoriteService.getUserFavorites(userId, page, limit);
         return Result.ok(PageResult.from(favorites));

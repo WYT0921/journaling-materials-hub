@@ -111,7 +111,13 @@
         <text class="divider-text">已到底了</text>
         <view class="divider-line" />
       </view>
+
+      <!-- 底部占位，防止被固定 TabBar 遮挡 -->
+      <view class="tabbar-placeholder" />
     </scroll-view>
+
+    <!-- 底部 TabBar -->
+    <CustomTabBar :current="0" />
   </view>
 </template>
 
@@ -124,6 +130,7 @@ import MaterialCard from '../../components/MaterialCard.vue'
 import LoadingSpinner from '../../components/LoadingSpinner.vue'
 import EmptyState from '../../components/EmptyState.vue'
 import GlassNavBar from '../../components/GlassNavBar.vue'
+import CustomTabBar from '../../components/CustomTabBar.vue'
 
 const materialStore = useMaterialStore()
 const userStore = useUserStore()
@@ -358,5 +365,10 @@ onPullDownRefresh(() => {
   font-size: 22rpx;
   color: #ccc;
   white-space: nowrap;
+}
+
+/* 底部占位，防止被固定 TabBar 遮挡 */
+.tabbar-placeholder {
+  height: 120rpx;
 }
 </style>

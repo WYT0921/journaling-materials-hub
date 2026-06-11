@@ -38,7 +38,7 @@ public class ToolController {
     public Result<?> addTool(@RequestBody Tool tool, HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
         if (userId == null) {
-            return Result.error(401, "请先登录");
+            return Result.error("请先登录", 401);
         }
         Tool created = toolService.addTool(userId, tool);
         return Result.ok(created);
@@ -51,9 +51,22 @@ public class ToolController {
     public Result<?> removeTool(@PathVariable Long id, HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
         if (userId == null) {
-            return Result.error(401, "请先登录");
+            return Result.error("请先登录", 401);
         }
         toolService.removeTool(userId, id);
         return Result.ok(null);
+    }
+
+    /**
+     * 更新自定义工具
+     */
+    @PutMapping("/{id}")
+    public Result<?> updateTool(@PathVariable Long id, @RequestBody Tool tool, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        if (userId == null) {
+            return Result.error("请先登录", 401);
+        }
+        Tool updated = toolService.updateTool(userId, id, tool);
+        return Result.ok(updated);
     }
 }

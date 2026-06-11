@@ -29,4 +29,9 @@ public interface ToolService {
      * 删除自定义工具
      */
     void removeTool(Long userId, Long toolId);
+
+    /**
+     * 更新自定义工具
+     */
+    Tool updateTool(Long userId, Long toolId, Tool tool);
 }

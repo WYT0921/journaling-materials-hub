@@ -100,4 +100,34 @@ public class ToolServiceImpl implements ToolService {
         existing.setStatus(0);
         toolMapper.updateById(existing);
     }
+
+    @Override
+    public Tool updateTool(Long userId, Long toolId, Tool tool) {
+        Tool existing = toolMapper.selectById(toolId);
+        if (existing == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND);
+        }
+        if (!userId.equals(existing.getUserId())) {
+            throw new BusinessException(ErrorCode.FORBIDDEN);
+        }
+        if (Boolean.TRUE.equals(existing.getIsDefault())) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "默认工具不可修改");
+        }
+
+        if (tool.getName() != null) {
+            existing.setName(tool.getName());
+        }
+        if (tool.getDescription() != null) {
+            existing.setDescription(tool.getDescription());
+        }
+        if (tool.getIcon() != null) {
+            existing.setIcon(tool.getIcon());
+        }
+        if (tool.getUrl() != null) {
+            existing.setUrl(tool.getUrl());
+        }
+
+        toolMapper.updateById(existing);
+        return existing;
+    }
 }

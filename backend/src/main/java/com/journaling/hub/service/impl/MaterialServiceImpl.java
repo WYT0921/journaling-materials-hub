@@ -41,15 +41,15 @@ public class MaterialServiceImpl implements MaterialService {
             String[] keywords = keyword.trim().split("\\s+");
             wrapper.and(w -> {
                 for (int i = 0; i < keywords.length; i++) {
-                    String kw = "%" + keywords[i] + "%";
+                    final String kw = keywords[i];
                     if (i == 0) {
-                        w.like(Material::getTitle, keywords[i])
-                                .or().like(Material::getDescription, keywords[i]);
+                        w.like(Material::getTitle, kw)
+                                .or().like(Material::getDescription, kw);
                     } else {
                         w.and(w2 -> w2
-                                .like(Material::getTitle, keywords[i])
+                                .like(Material::getTitle, kw)
                                 .or()
-                                .like(Material::getDescription, keywords[i])
+                                .like(Material::getDescription, kw)
                         );
                     }
                 }
@@ -77,7 +77,17 @@ public class MaterialServiceImpl implements MaterialService {
     @Override
     public IPage<Material> searchMaterials(String keyword, int page, int limit) {
         Page<Material> pageParam = new Page<>(page, limit);
-        return materialMapper.searchMaterials(pageParam, keyword);
+        LambdaQueryWrapper<Material> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Material::getStatus, 1);
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            wrapper.and(w -> w
+                    .like(Material::getTitle, keyword)
+                    .or()
+                    .like(Material::getDescription, keyword));
+        }
+        wrapper.orderByDesc(Material::getSortOrder)
+               .orderByDesc(Material::getCreatedAt);
+        return materialMapper.selectPage(pageParam, wrapper);
     }
 
     @Override

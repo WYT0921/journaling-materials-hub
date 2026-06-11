@@ -21,10 +21,12 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/api/**")
                 .excludePathPatterns(
                         "/api/user/login",
+                        "/api/user/dev-login",
                         "/api/materials",
                         "/api/materials/search",
                         "/api/materials/categories",
                         "/api/materials/{id}",
+                        "/api/redeem/verify",
                         "/actuator/**"
                 );
     }

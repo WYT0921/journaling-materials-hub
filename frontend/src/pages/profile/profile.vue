@@ -1,127 +1,156 @@
 <template>
   <view class="page-profile">
-    <!-- ===== 顶部身份区 ===== -->
-    <view class="identity-section">
+    <!-- 面包屑 + 标题 -->
+    <view class="page-header">
+      <text class="breadcrumb">我的 · Account</text>
+      <text class="page-title">个人中心</text>
+    </view>
+
+    <!-- ===== 身份区 ===== -->
+    <view class="profile-section">
       <!-- 已登录 -->
-      <view v-if="userStore.isLoggedIn" class="identity-inner">
-        <image
-          class="identity-avatar"
-          :src="userStore.avatarUrl"
-          mode="aspectFill"
-        />
-        <view class="identity-info">
-          <text class="identity-name">{{ userStore.nickname }}</text>
-          <!-- 身份徽章 -->
-          <view
-            class="identity-badge"
-            :class="userStore.isPremium ? 'badge-premium' : 'badge-normal'"
-          >
-            <text v-if="userStore.isPremium" class="badge-crown">👑</text>
-            <text class="badge-text">{{ userStore.isPremium ? '会员' : '普通用户' }}</text>
-          </view>
+      <view v-if="userStore.isLoggedIn" class="profile-inner">
+        <view class="avatar-wrapper">
+          <image
+            v-if="userStore.avatarUrl && userStore.avatarUrl.indexOf('default') === -1"
+            class="avatar-img"
+            :src="userStore.avatarUrl"
+            mode="aspectFill"
+          />
+          <text v-else class="avatar-icon">👤</text>
+        </view>
+        <view class="profile-info">
+          <text class="profile-name">{{ userStore.nickname }}</text>
+          <text class="profile-level">{{ userStore.isPremium ? '会员' : '普通用户' }}</text>
         </view>
       </view>
 
       <!-- 未登录 -->
-      <view v-else class="identity-inner" @tap="handleLogin">
-        <view class="identity-avatar identity-avatar-empty">
-          <text class="avatar-placeholder">👤</text>
+      <view v-else class="profile-inner" @tap="handleLogin">
+        <view class="avatar-wrapper avatar-empty">
+          <text class="avatar-icon">👤</text>
         </view>
-        <view class="identity-info">
-          <text class="identity-name">点击登录</text>
-          <text class="identity-hint">登录后享受更多功能</text>
+        <view class="profile-info">
+          <text class="profile-name">点击登录</text>
+          <text class="profile-level">登录后享受更多功能</text>
         </view>
       </view>
     </view>
 
-    <!-- ===== 数据统计条（仅登录后） ===== -->
-    <view v-if="userStore.isLoggedIn" class="stats-bar">
+    <!-- ===== 数据统计条 ===== -->
+    <view class="stats-bar">
       <view class="stat-item">
-        <view class="stat-icon stat-icon-download" />
-        <text class="stat-value">{{ formattedStats.downloadCount }}</text>
+        <text class="stat-icon-text">⬇</text>
+        <text class="stat-number">{{ formattedStats.downloadCount }}</text>
         <text class="stat-label">下载</text>
       </view>
-      <view class="stat-divider" />
-      <view class="stat-item">
-        <view class="stat-icon stat-icon-collection" />
-        <text class="stat-value">{{ formattedStats.collectionCount }}</text>
+      <view class="stat-item stat-item-center">
+        <text class="stat-icon-text">♡</text>
+        <text class="stat-number">{{ formattedStats.collectionCount }}</text>
         <text class="stat-label">收藏</text>
       </view>
-      <view class="stat-divider" />
       <view class="stat-item">
-        <view class="stat-icon stat-icon-material" />
-        <text class="stat-value">{{ formattedStats.materialCount }}</text>
+        <text class="stat-icon-text">🖼</text>
+        <text class="stat-number">{{ formattedStats.materialCount }}</text>
         <text class="stat-label">素材</text>
       </view>
     </view>
 
-    <!-- ===== 双入口卡片 ===== -->
-    <view class="entry-cards">
-      <!-- 会员中心卡（非会员黑底白字反显） -->
-      <view
-        class="entry-card"
-        :class="{ 'entry-card-premium': !userStore.isPremium }"
-        @tap="handleGoPremium"
-      >
-        <view class="entry-card-content">
-          <text class="entry-card-title">会员中心</text>
-          <text class="entry-card-desc">{{ userStore.isPremium ? '管理你的会员权益' : '解锁高清素材 + 全部工具' }}</text>
+    <!-- ===== 会员中心卡 ===== -->
+    <view class="vip-card" :class="{ 'vip-premium': userStore.isPremium }" @tap="handleGoPremium">
+      <view class="vip-left">
+        <view class="vip-icon-circle" :class="{ 'vip-icon-dark': !userStore.isPremium }">
+          <text class="vip-icon-text">👑</text>
         </view>
-        <text class="entry-card-arrow">›</text>
-      </view>
-
-      <!-- 兑换会员卡 -->
-      <view class="entry-card entry-card-redeem" @tap="handleGoRedeem">
-        <view class="entry-card-content">
-          <text class="entry-card-title">兑换会员</text>
-          <text class="entry-card-desc">使用兑换码激活会员权益</text>
+        <view class="vip-info">
+          <text class="vip-title">会员中心</text>
+          <text class="vip-desc">
+            {{ userStore.isPremium ? '管理你的会员权益' : '解锁高清素材 + 全部工具' }}
+          </text>
         </view>
-        <text class="entry-card-arrow">›</text>
       </view>
+      <text class="card-arrow">›</text>
     </view>
 
-    <!-- ===== 底部设置列表 ===== -->
-    <view class="settings-list">
-      <view class="setting-item" @tap="handleSettingTap('settings')">
-        <view class="setting-icon-round setting-icon-settings" />
-        <text class="setting-text">设置</text>
-        <text class="setting-arrow">›</text>
+    <!-- ===== 兑换会员卡 ===== -->
+    <view class="exchange-card" @tap="handleGoRedeem">
+      <view class="exchange-left">
+        <view class="exchange-icon-circle">
+          <text class="exchange-icon-text">🎫</text>
+        </view>
+        <view class="exchange-info">
+          <text class="exchange-title">兑换会员</text>
+          <text class="exchange-desc">使用兑换码激活会员权益</text>
+        </view>
       </view>
-      <view class="setting-item" @tap="handleSettingTap('materials')">
-        <view class="setting-icon-round setting-icon-materials" />
-        <text class="setting-text">素材管理</text>
-        <text class="setting-arrow">›</text>
+      <text class="card-arrow">›</text>
+    </view>
+
+    <!-- ===== 菜单列表 ===== -->
+    <view class="menu-section">
+      <view class="menu-item" @tap="handleSettingTap('settings')">
+        <view class="menu-left">
+          <view class="menu-icon-circle">
+            <text class="menu-icon-text">⚙</text>
+          </view>
+          <text class="menu-label">设置</text>
+        </view>
+        <text class="card-arrow">›</text>
       </view>
-      <view class="setting-item" @tap="handleSettingTap('about')">
-        <view class="setting-icon-round setting-icon-about" />
-        <text class="setting-text">关于</text>
-        <text class="setting-arrow">›</text>
+
+      <view class="menu-item" @tap="handleSettingTap('materials')">
+        <view class="menu-left">
+          <view class="menu-icon-circle">
+            <text class="menu-icon-text">📁</text>
+          </view>
+          <text class="menu-label">素材管理</text>
+        </view>
+        <text class="card-arrow">›</text>
       </view>
-      <view class="setting-item" @tap="handleSettingTap('feedback')">
-        <view class="setting-icon-round setting-icon-feedback" />
-        <text class="setting-text">反馈建议</text>
-        <text class="setting-arrow">›</text>
+
+      <view class="menu-item" @tap="handleSettingTap('about')">
+        <view class="menu-left">
+          <view class="menu-icon-circle">
+            <text class="menu-icon-text">ℹ</text>
+          </view>
+          <text class="menu-label">关于</text>
+        </view>
+        <text class="card-arrow">›</text>
+      </view>
+
+      <view class="menu-item" @tap="handleSettingTap('feedback')">
+        <view class="menu-left">
+          <view class="menu-icon-circle">
+            <text class="menu-icon-text">💬</text>
+          </view>
+          <text class="menu-label">反馈建议</text>
+        </view>
+        <text class="card-arrow">›</text>
       </view>
     </view>
 
     <!-- ===== 退出登录 ===== -->
     <view v-if="userStore.isLoggedIn" class="logout-section">
-      <button class="logout-button" @tap="handleLogout">
+      <view class="logout-button" @tap="handleLogout">
         <text class="logout-text">退出登录</text>
-      </button>
+      </view>
     </view>
 
     <!-- CustomToast -->
     <CustomToast ref="toastRef" />
+
+    <!-- 底部 TabBar -->
+    <CustomTabBar :current="2" />
   </view>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { useUserStore } from '../../stores/user'
 import { getUserStats } from '../../api/user'
 import CustomToast from '../../components/CustomToast.vue'
+import CustomTabBar from '../../components/CustomTabBar.vue'
 
 const userStore = useUserStore()
 const toastRef = ref(null)
@@ -145,21 +174,19 @@ onShow(() => {
   }
 })
 
-// 加载统计
 const loadUserStats = async () => {
   try {
     const result = await getUserStats()
     stats.value = {
       downloadCount: result.downloadCount || 0,
       collectionCount: result.collectionCount || 0,
-      materialCount: result.materialCount || (result.downloadCount || 0)
+      materialCount: result.materialCount ?? 0
     }
   } catch (error) {
     console.error('加载统计失败:', error)
   }
 }
 
-// 登录
 const handleLogin = async () => {
   try {
     await userStore.login()
@@ -169,24 +196,37 @@ const handleLogin = async () => {
   }
 }
 
-// 跳转会员中心
 const handleGoPremium = () => {
   uni.navigateTo({ url: '/pages/premium/index' })
 }
 
-// 跳转兑换页
 const handleGoRedeem = () => {
   uni.navigateTo({ url: '/pages/redeem/index' })
 }
 
-// 设置项点击
 const handleSettingTap = (type) => {
   switch (type) {
     case 'settings':
-      toastRef.value?.showToast('设置功能开发中', 'check')
+      uni.showModal({
+        title: '设置',
+        content: '手账素材小程序 v1.0\n\n清除缓存可以释放存储空间，不会影响你的会员状态和下载记录。',
+        confirmText: '清除缓存',
+        cancelText: '取消',
+        success: (res) => {
+          if (res.confirm) {
+            toastRef.value?.showToast('缓存已清除', 'check')
+          }
+        }
+      })
       break
     case 'materials':
-      toastRef.value?.showToast('素材管理开发中', 'check')
+      uni.showActionSheet({
+        itemList: ['下载记录', '收藏记录'],
+        success: (res) => {
+          const labels = ['下载记录', '收藏记录']
+          toastRef.value?.showToast(`${labels[res.tapIndex]}开发中`, 'check')
+        }
+      })
       break
     case 'about':
       uni.showModal({
@@ -195,12 +235,16 @@ const handleSettingTap = (type) => {
       })
       break
     case 'feedback':
-      toastRef.value?.showToast('反馈建议已收到', 'check')
+      uni.showModal({
+        title: '反馈建议',
+        content: '请通过以下方式联系我们：\n\n📧 邮箱：feedback@journaling-hub.com\n💬 微信：JournalingHub',
+        confirmText: '知道了',
+        showCancel: false
+      })
       break
   }
 }
 
-// 退出登录
 const handleLogout = () => {
   uni.showModal({
     title: '提示',
@@ -221,228 +265,285 @@ const handleLogout = () => {
   padding: 28rpx 24rpx 140rpx;
 }
 
-/* ===== 身份区 ===== */
-.identity-section {
+/* ===== 页头 ===== */
+.page-header {
   margin-bottom: 24rpx;
 }
 
-.identity-inner {
+.breadcrumb {
+  font-size: 22rpx;
+  color: #888;
+  display: block;
+  margin-bottom: 6rpx;
+}
+
+.page-title {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #111;
+  display: block;
+}
+
+/* ===== 身份区 ===== */
+.profile-section {
+  margin-bottom: 24rpx;
+}
+
+.profile-inner {
   display: flex;
   align-items: center;
-  gap: 24rpx;
+  gap: 20rpx;
 }
 
-.identity-avatar {
-  width: 120rpx;
-  height: 120rpx;
+.avatar-wrapper {
+  width: 100rpx;
+  height: 100rpx;
   border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.identity-avatar-empty {
-  background: #eee;
+  background: #f2f2f2;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
 }
 
-.avatar-placeholder {
-  font-size: 48rpx;
+.avatar-img {
+  width: 100%;
+  height: 100%;
 }
 
-.identity-info {
+.avatar-icon {
+  font-size: 44rpx;
+  color: #bbb;
+}
+
+.profile-info {
   flex: 1;
 }
 
-.identity-name {
-  font-size: 36rpx;
-  font-weight: 600;
-  color: #333;
+.profile-name {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #111;
   display: block;
 }
 
-.identity-hint {
+.profile-level {
   font-size: 24rpx;
-  color: #999;
-  margin-top: 8rpx;
+  color: #888;
+  margin-top: 6rpx;
   display: block;
 }
 
-/* 身份徽章 */
-.identity-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6rpx;
-  padding: 6rpx 16rpx;
-  border-radius: 8rpx;
-  margin-top: 12rpx;
-}
-
-.badge-normal {
-  background: #f5f5f5;
-  .badge-text { color: #999; }
-}
-
-.badge-premium {
-  background: #000;
-  .badge-text { color: #fff; }
-  .badge-crown { font-size: 20rpx; }
-}
-
-.badge-text {
-  font-size: 22rpx;
-  font-weight: 500;
-}
-
-/* ===== 统计条 ===== */
+/* ===== 统计条 (白底卡片，匹配account.html) ===== */
 .stats-bar {
-  display: flex;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.9);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background: #fff;
   border-radius: 16rpx;
-  border: 1rpx solid #eee;
-  padding: 24rpx 8rpx;
+  overflow: hidden;
   margin-bottom: 20rpx;
 }
 
 .stat-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6rpx;
+  text-align: center;
+  padding: 28rpx 10rpx;
+  border-right: 1rpx solid #eee;
 }
 
-.stat-icon {
-  width: 8rpx;
-  height: 8rpx;
-  border-radius: 50%;
+.stat-item:last-child {
+  border: none;
 }
 
-.stat-icon-download { background: #333; }
-.stat-icon-collection { background: #999; }
-.stat-icon-material { background: #ccc; }
+.stat-icon-text {
+  font-size: 32rpx;
+  display: block;
+  margin-bottom: 6rpx;
+}
 
-.stat-value {
-  font-size: 36rpx;
-  font-weight: 600;
-  color: #333;
+.stat-number {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #111;
+  display: block;
   font-variant-numeric: tabular-nums;
 }
 
 .stat-label {
   font-size: 22rpx;
-  color: #999;
+  color: #888;
+  display: block;
+  margin-top: 4rpx;
 }
 
-.stat-divider {
-  width: 1rpx;
-  height: 48rpx;
-  background: #eee;
-}
-
-/* ===== 双入口卡片 ===== */
-.entry-cards {
-  display: flex;
-  flex-direction: column;
-  gap: 16rpx;
-  margin-bottom: 24rpx;
-}
-
-.entry-card {
+/* ===== 会员中心卡 ===== */
+.vip-card {
+  background: #111;
+  border-radius: 16rpx;
+  padding: 24rpx 24rpx;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 28rpx 24rpx;
-  border-radius: 16rpx;
-  background: rgba(255, 255, 255, 0.9);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
+  margin-bottom: 16rpx;
+}
+
+.vip-premium {
+  background: #fff;
   border: 1rpx solid #eee;
 }
 
-.entry-card-premium {
-  background: #000;
-  border-color: #000;
-
-  .entry-card-title { color: #fff; }
-  .entry-card-desc { color: rgba(255,255,255,0.7); }
-  .entry-card-arrow { color: rgba(255,255,255,0.5); }
-}
-
-.entry-card-redeem {
-  .entry-card-title { color: #333; }
-  .entry-card-desc { color: #999; }
-  .entry-card-arrow { color: #ccc; }
-}
-
-.entry-card-content {
-  flex: 1;
-}
-
-.entry-card-title {
-  font-size: 28rpx;
-  font-weight: 600;
-  display: block;
-  margin-bottom: 6rpx;
-}
-
-.entry-card-desc {
-  font-size: 22rpx;
-  display: block;
-}
-
-.entry-card-arrow {
-  font-size: 36rpx;
-  margin-left: 16rpx;
-}
-
-/* ===== 设置列表 ===== */
-.settings-list {
-  background: rgba(255, 255, 255, 0.9);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-  border-radius: 16rpx;
-  border: 1rpx solid #eee;
-  overflow: hidden;
-}
-
-.setting-item {
+.vip-left {
   display: flex;
   align-items: center;
-  padding: 28rpx 24rpx;
-  border-bottom: 1rpx solid #f5f5f5;
-
-  &:last-child {
-    border-bottom: none;
-  }
-
-  &:active {
-    background: rgba(0,0,0,0.03);
-  }
+  gap: 18rpx;
 }
 
-.setting-icon-round {
-  width: 36rpx;
-  height: 36rpx;
+.vip-icon-circle {
+  width: 72rpx;
+  height: 72rpx;
   border-radius: 50%;
-  margin-right: 20rpx;
+  background: #2c2c2c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
-.setting-icon-settings { background: #333; }
-.setting-icon-materials { background: #666; }
-.setting-icon-about { background: #999; }
-.setting-icon-feedback { background: #ccc; }
+.vip-premium .vip-icon-circle {
+  background: #f5f5f5;
+}
 
-.setting-text {
+.vip-icon-text {
+  font-size: 36rpx;
+  color: #fff;
+}
+
+.vip-premium .vip-icon-text {
+  color: #111;
+}
+
+.vip-info {
   flex: 1;
-  font-size: 28rpx;
-  color: #333;
 }
 
-.setting-arrow {
+.vip-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #fff;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.vip-premium .vip-title {
+  color: #111;
+}
+
+.vip-desc {
+  font-size: 22rpx;
+  color: #aaa;
+  display: block;
+}
+
+.vip-premium .vip-desc {
+  color: #999;
+}
+
+/* ===== 兑换会员卡 ===== */
+.exchange-card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24rpx;
+}
+
+.exchange-left {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+}
+
+.exchange-icon-circle {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.exchange-icon-text {
+  font-size: 36rpx;
+}
+
+.exchange-info {
+  flex: 1;
+}
+
+.exchange-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #111;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.exchange-desc {
+  font-size: 22rpx;
+  color: #999;
+  display: block;
+}
+
+.card-arrow {
+  font-size: 36rpx;
+  color: #ccc;
+}
+
+/* ===== 菜单列表 (透明底+顶部线) ===== */
+.menu-section {
+  background: transparent;
+  border-top: 1rpx solid #eee;
+  padding-top: 12rpx;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22rpx 0;
+}
+
+.menu-left {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+}
+
+.menu-icon-circle {
+  width: 52rpx;
+  height: 52rpx;
+  border-radius: 50%;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu-icon-text {
+  font-size: 28rpx;
+  color: #888;
+}
+
+.menu-label {
+  font-size: 28rpx;
+  color: #111;
+}
+
+.menu-item .card-arrow {
   font-size: 28rpx;
   color: #ccc;
 }
@@ -455,19 +556,12 @@ const handleLogout = () => {
 .logout-button {
   width: 100%;
   height: 80rpx;
-  background: rgba(255, 255, 255, 0.9);
-  border: 2rpx solid #ddd;
+  background: #fff;
+  border: 1rpx solid #eee;
   border-radius: 12rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  line-height: 80rpx;
-  padding: 0;
-  margin: 0;
-}
-
-.logout-button::after {
-  border: none;
 }
 
 .logout-text {

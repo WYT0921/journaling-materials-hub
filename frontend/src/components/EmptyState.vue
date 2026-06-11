@@ -1,10 +1,12 @@
 <template>
   <view class="empty-state">
     <image
+      v-if="image"
       class="empty-image"
-      :src="image || '/static/images/empty.png'"
+      :src="image"
       mode="aspectFit"
     />
+    <text v-else class="empty-icon">📭</text>
     <text class="empty-text">{{ text || '暂无数据' }}</text>
     <button
       v-if="showRetry"
@@ -53,6 +55,12 @@ const handleRetry = () => {
   height: 200rpx;
   margin-bottom: 24rpx;
   opacity: 0.6;
+}
+
+.empty-icon {
+  font-size: 100rpx;
+  margin-bottom: 24rpx;
+  opacity: 0.4;
 }
 
 .empty-text {

@@ -106,6 +106,9 @@
 
     <!-- CustomToast -->
     <CustomToast ref="toastRef" />
+
+    <!-- 底部 TabBar -->
+    <CustomTabBar :current="1" />
   </view>
 </template>
 
@@ -116,6 +119,7 @@ import ToolCard from '../../components/ToolCard.vue'
 import BottomSheet from '../../components/BottomSheet.vue'
 import IconPicker from '../../components/IconPicker.vue'
 import CustomToast from '../../components/CustomToast.vue'
+import CustomTabBar from '../../components/CustomTabBar.vue'
 
 const toolsStore = useToolsStore()
 

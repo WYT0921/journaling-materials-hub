@@ -116,4 +116,33 @@ public class UserController {
         Map<String, Object> stats = userService.getUserStats(userId);
         return Result.ok(stats);
     }
+
+    /**
+     * 开发环境测试登录（无需微信 code）
+     */
+    @PostMapping("/dev-login")
+    public Result<?> devLogin(@RequestBody Map<String, Object> body) {
+        String openid = (String) body.getOrDefault("openid", "dev-test-openid");
+        Boolean isPremium = (Boolean) body.getOrDefault("isPremium", false);
+
+        // 查找或创建用户
+        User user = userService.findOrCreateByOpenid(openid);
+
+        // 如果请求会员状态，激活会员
+        if (isPremium && !user.isPremium()) {
+            user = userService.activatePremium(user.getId(), "yearly", 365);
+        }
+
+        String token = jwtUtil.generateToken(user.getId(), user.getOpenid(), user.isPremium());
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("token", token);
+        result.put("userId", user.getId());
+        result.put("openid", user.getOpenid());
+        result.put("isPremium", user.isPremium());
+        result.put("nickname", user.getNickname());
+
+        log.info("Dev login: userId={}, isPremium={}", user.getId(), user.isPremium());
+        return Result.ok(result);
+    }
 }

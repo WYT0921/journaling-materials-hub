@@ -30,20 +30,20 @@ const emit = defineEmits(['change'])
 const tabs = [
   {
     text: '首页',
-    icon: '/src/static/icons/home.png',
-    activeIcon: '/src/static/icons/home-active.png',
+    icon: '/static/icons/home.png',
+    activeIcon: '/static/icons/home-active.png',
     pagePath: '/pages/index/index'
   },
   {
     text: '工具',
-    icon: '/src/static/icons/tools.png',
-    activeIcon: '/src/static/icons/tools-active.png',
+    icon: '/static/icons/tools.png',
+    activeIcon: '/static/icons/tools-active.png',
     pagePath: '/pages/tools/tools'
   },
   {
     text: '我的',
-    icon: '/src/static/icons/profile.png',
-    activeIcon: '/src/static/icons/profile-active.png',
+    icon: '/static/icons/profile.png',
+    activeIcon: '/static/icons/profile-active.png',
     pagePath: '/pages/profile/profile'
   }
 ]
@@ -67,7 +67,10 @@ function handleTabTap(index) {
   backdrop-filter: blur(20px);
   /* 顶部细线 */
   border-top: 0.5px solid rgba(0, 0, 0, 0.05);
-  position: relative;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
   z-index: 100;
 }
 

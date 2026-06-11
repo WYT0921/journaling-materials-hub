@@ -25,11 +25,11 @@
 
         <!-- VIP 专属角标（非会员查看会员素材时） -->
         <view v-if="showVipBadge" class="vip-corner-badge">
-          <text class="vip-corner-text">会员专属</text>
+          <text class="vip-corner-text">👑 会员专属</text>
         </view>
 
         <!-- 会员素材渐变遮罩提示（非会员） -->
-        <view v-if="material.isBlurred" class="gradient-overlay">
+        <view v-if="isBlurred" class="gradient-overlay">
           <view class="overlay-content">
             <text class="overlay-text">查看高清原图需加入会员</text>
           </view>
@@ -50,10 +50,10 @@
         <view class="material-meta">
           <view class="meta-author">
             <view class="author-avatar" />
-            <text class="author-name">手账控Mori</text>
+            <text class="author-name">@手账控Mori</text>
           </view>
           <view class="meta-stats">
-            <text class="stat-item">❤ {{ material.downloadCount || 0 }}</text>
+            <text class="stat-item">❤ {{ material.likeCount || material.downloadCount || 0 }}</text>
             <text class="stat-divider">·</text>
             <text class="stat-item">↓ {{ material.downloadCount || 0 }}</text>
           </view>
@@ -82,10 +82,10 @@
       <view v-if="isVipOnly && !userStore.isPremium" class="cta-row">
         <!-- VIP素材非会员：双 CTA -->
         <button class="cta-btn cta-outline" @tap="handlePreview">
-          <text class="cta-outline-text">预览</text>
+          <text class="cta-outline-text">👁 预览</text>
         </button>
         <button class="cta-btn cta-primary" @tap="handleUnlock">
-          <text class="cta-primary-text">解锁下载</text>
+          <text class="cta-primary-text">👑 解锁下载</text>
         </button>
       </view>
       <view v-else class="cta-row">
@@ -105,12 +105,15 @@
         <view class="unlock-icon-wrapper">
           <text class="unlock-crown">👑</text>
         </view>
-        <text class="unlock-desc">开通会员即可畅享所有高清素材与创作工具</text>
+        <text class="unlock-desc">该素材为会员专属，成为会员即可下载高清无水印原图</text>
       </view>
       <template #footer>
         <view class="unlock-footer">
           <button class="unlock-btn-primary" @tap="handleGoRedeem">
-            <text class="unlock-btn-text">解锁会员</text>
+            <text class="unlock-btn-text">👑 解锁会员</text>
+          </button>
+          <button class="unlock-btn-customer" @tap="handleContactService">
+            <text class="unlock-customer-text">联系客服</text>
           </button>
           <button class="unlock-btn-cancel" @tap="showUnlockSheet = false">
             <text class="unlock-cancel-text">取消</text>
@@ -145,6 +148,11 @@ const isVipOnly = computed(() => {
   return material.value?.isPremium
 })
 
+// 是否需要模糊化（VIP素材且非会员）
+const isBlurred = computed(() => {
+  return material.value?.isPremium && !userStore.isPremium
+})
+
 // 是否显示 VIP 角标（VIP素材 + 非会员）
 const showVipBadge = computed(() => {
   return material.value?.isPremium && !userStore.isPremium
@@ -174,7 +182,7 @@ const loadMaterialDetail = async () => {
 // 图片预览
 const handleImagePreview = () => {
   if (!material.value) return
-  if (material.value.isBlurred) {
+  if (isBlurred.value) {
     showUnlockSheet.value = true
     return
   }
@@ -199,6 +207,12 @@ const handleUnlock = () => {
 const handleGoRedeem = () => {
   showUnlockSheet.value = false
   uni.navigateTo({ url: '/pages/redeem/index' })
+}
+
+// 联系客服
+const handleContactService = () => {
+  showUnlockSheet.value = false
+  uni.showToast({ title: '客服功能开发中', icon: 'none' })
 }
 
 // 下载素材
@@ -447,7 +461,7 @@ const handleShare = () => {
 .cta-btn {
   flex: 1;
   height: 80rpx;
-  border-radius: 12rpx;
+  border-radius: 100rpx;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -502,7 +516,7 @@ const handleShare = () => {
   width: 88rpx;
   height: 88rpx;
   border-radius: 50%;
-  background: #f5f5f5;
+  background: #000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -510,6 +524,7 @@ const handleShare = () => {
 
 .unlock-crown {
   font-size: 44rpx;
+  color: #fff;
 }
 
 .unlock-desc {
@@ -530,7 +545,7 @@ const handleShare = () => {
 .unlock-btn-primary {
   height: 88rpx;
   background: #000;
-  border-radius: 12rpx;
+  border-radius: 100rpx;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -569,6 +584,30 @@ const handleShare = () => {
 .unlock-cancel-text {
   font-size: 28rpx;
   color: #999;
+}
+
+/* 联系客服按钮 */
+.unlock-btn-customer {
+  height: 88rpx;
+  background: #fff;
+  border: 1px solid #000;
+  border-radius: 100rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  line-height: 88rpx;
+}
+
+.unlock-btn-customer::after {
+  border: none;
+}
+
+.unlock-customer-text {
+  font-size: 28rpx;
+  color: #000;
+  font-weight: 500;
 }
 
 /* ===== 导航栏操作按钮 ===== */
