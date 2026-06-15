@@ -136,7 +136,7 @@ const formData = reactive({
 })
 
 onMounted(() => {
-  toolsStore.loadCustomTools()
+  toolsStore.fetchTools()
 })
 
 // 复制链接

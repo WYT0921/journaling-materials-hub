@@ -12,10 +12,6 @@
       <view v-if="material.isPremium" class="vip-badge">
         <text class="vip-text">VIP</text>
       </view>
-      <!-- 模糊遮罩 -->
-      <view v-if="isBlurred" class="blur-overlay">
-        <text class="blur-text">会员专享</text>
-      </view>
     </view>
 
     <!-- 信息区域 -->
@@ -30,28 +26,17 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-
 const props = defineProps({
   material: {
     type: Object,
     required: true
-  },
-  isPremium: {
-    type: Boolean,
-    default: false
   }
 })
 
-const emit = defineEmits(['tap'])
-
-// 是否需要模糊化
-const isBlurred = computed(() => {
-  return props.material.isPremium && !props.isPremium
-})
+const emit = defineEmits(['select'])
 
 const handleTap = () => {
-  emit('tap', props.material)
+  emit('select', props.material)
 }
 </script>
 
@@ -98,25 +83,6 @@ const handleTap = () => {
   font-size: 20rpx;
   color: #fff;
   font-weight: 600;
-}
-
-.blur-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(10px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.blur-text {
-  font-size: 28rpx;
-  color: #333;
-  font-weight: bold;
 }
 
 .card-info {

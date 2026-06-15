@@ -84,8 +84,7 @@
             v-for="item in materialStore.leftColumn"
             :key="item.id"
             :material="item"
-            :is-premium="userStore.isPremium"
-            @tap="handleMaterialTap"
+            @select="handleMaterialTap"
           />
         </view>
         <view class="waterfall-column">
@@ -93,8 +92,7 @@
             v-for="item in materialStore.rightColumn"
             :key="item.id"
             :material="item"
-            :is-premium="userStore.isPremium"
-            @tap="handleMaterialTap"
+            @select="handleMaterialTap"
           />
         </view>
       </view>
@@ -125,7 +123,6 @@
 import { ref, onMounted } from 'vue'
 import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
 import { useMaterialStore } from '../../stores/material'
-import { useUserStore } from '../../stores/user'
 import MaterialCard from '../../components/MaterialCard.vue'
 import LoadingSpinner from '../../components/LoadingSpinner.vue'
 import EmptyState from '../../components/EmptyState.vue'
@@ -133,7 +130,6 @@ import GlassNavBar from '../../components/GlassNavBar.vue'
 import CustomTabBar from '../../components/CustomTabBar.vue'
 
 const materialStore = useMaterialStore()
-const userStore = useUserStore()
 
 const searchKeyword = ref('')
 const isRefreshing = ref(false)

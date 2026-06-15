@@ -20,7 +20,6 @@ class RedeemCodeServiceTest extends BaseTest {
 
     @Test
     @Order(1)
-    @Disabled("需要 MySQL — H2 时间戳兼容性")
     void testVerifyCode_Valid() {
         Map<String, Object> result = redeemCodeService.verifyCode("TEST-VALID-CODE");
         assertNotNull(result);
@@ -45,7 +44,6 @@ class RedeemCodeServiceTest extends BaseTest {
 
     @Test
     @Order(4)
-    @Disabled("需要 MySQL 环境 — H2 时间戳兼容性问题")
     void testActivate_Success() {
         Map<String, Object> result = redeemCodeService.activate(1L, "TEST-VALID-CODE");
         assertNotNull(result);
@@ -61,7 +59,6 @@ class RedeemCodeServiceTest extends BaseTest {
 
     @Test
     @Order(6)
-    @Disabled("需要 MySQL 环境 — H2 时间戳兼容性问题")
     void testActivate_Permanent() {
         Map<String, Object> result = redeemCodeService.activate(2L, "TEST-PERMANENT");
         assertNotNull(result);

@@ -45,7 +45,12 @@ export function getMockData(url) {
     if (url.includes(key)) {
       const data = mockMap[key]
 
-      // 素材列表支持分页
+      // 素材详情：URL 如 /materials/12（包含数字 ID）
+      if (key === '/materials' && /\/materials\/\d+/.test(url)) {
+        return materialDetail
+      }
+
+      // 素材列表支持分页（/materials?page=...）
       if (
         key === '/materials' &&
         !url.includes('/materials/categories') &&

@@ -107,6 +107,13 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- MinIO 对象存储 SDK -->
+        <dependency>
+            <groupId>io.minio</groupId>
+            <artifactId>minio</artifactId>
+            <version>8.5.10</version>
+        </dependency>
+
         <!-- Hutool 工具类 -->
         <dependency>
             <groupId>cn.hutool</groupId>

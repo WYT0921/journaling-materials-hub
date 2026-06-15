@@ -223,8 +223,11 @@ const handleSettingTap = (type) => {
       uni.showActionSheet({
         itemList: ['下载记录', '收藏记录'],
         success: (res) => {
-          const labels = ['下载记录', '收藏记录']
-          toastRef.value?.showToast(`${labels[res.tapIndex]}开发中`, 'check')
+          if (res.tapIndex === 0) {
+            toastRef.value?.showToast('下载记录开发中', 'check')
+          } else if (res.tapIndex === 1) {
+            uni.navigateTo({ url: '/pages/favorites/index' })
+          }
         }
       })
       break

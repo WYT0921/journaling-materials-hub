@@ -3,6 +3,9 @@
     <!-- 毛玻璃导航栏 -->
     <GlassNavBar title="素材详情" :show-back="true">
       <template #right>
+        <view class="nav-action" @tap="handleToggleFavorite">
+          <text class="nav-action-icon">{{ isFavorited ? '❤' : '♡' }}</text>
+        </view>
         <view class="nav-action" @tap="handleShare">
           <text class="nav-action-icon">⋯</text>
         </view>
@@ -23,16 +26,9 @@
           @tap="handleImagePreview"
         />
 
-        <!-- VIP 专属角标（非会员查看会员素材时） -->
-        <view v-if="showVipBadge" class="vip-corner-badge">
+        <!-- VIP 角标 -->
+        <view v-if="material.isPremium" class="vip-corner-badge">
           <text class="vip-corner-text">👑 会员专属</text>
-        </view>
-
-        <!-- 会员素材渐变遮罩提示（非会员） -->
-        <view v-if="isBlurred" class="gradient-overlay">
-          <view class="overlay-content">
-            <text class="overlay-text">查看高清原图需加入会员</text>
-          </view>
         </view>
       </view>
 
@@ -79,8 +75,8 @@
 
     <!-- 底部 CTA 栏（毛玻璃） -->
     <view v-if="material" class="cta-bar safe-area-bottom">
-      <view v-if="isVipOnly && !userStore.isPremium" class="cta-row">
-        <!-- VIP素材非会员：双 CTA -->
+      <!-- 非会员：双按钮 — 全素材需会员下载 -->
+      <view v-if="!userStore.isPremium" class="cta-row">
         <button class="cta-btn cta-outline" @tap="handlePreview">
           <text class="cta-outline-text">👁 预览</text>
         </button>
@@ -88,8 +84,8 @@
           <text class="cta-primary-text">👑 解锁下载</text>
         </button>
       </view>
+      <!-- 会员：单按钮 -->
       <view v-else class="cta-row">
-        <!-- 免费素材 或 会员查看自己的素材：单 CTA -->
         <button class="cta-btn cta-primary-full" @tap="handleDownload">
           <text class="cta-primary-text">下载素材</text>
         </button>
@@ -125,11 +121,12 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { useUserStore } from '../../stores/user'
 import { getMaterialDetail } from '../../api/material'
 import { downloadMaterial } from '../../api/download'
+import { toggleFavorite, checkFavorite } from '../../api/favorite'
 import { requireLogin } from '../../utils/auth'
 import GlassNavBar from '../../components/GlassNavBar.vue'
 import LoadingSpinner from '../../components/LoadingSpinner.vue'
@@ -142,21 +139,7 @@ const materialId = ref(null)
 const material = ref(null)
 const isLoading = ref(true)
 const showUnlockSheet = ref(false)
-
-// 是否为会员专属素材
-const isVipOnly = computed(() => {
-  return material.value?.isPremium
-})
-
-// 是否需要模糊化（VIP素材且非会员）
-const isBlurred = computed(() => {
-  return material.value?.isPremium && !userStore.isPremium
-})
-
-// 是否显示 VIP 角标（VIP素材 + 非会员）
-const showVipBadge = computed(() => {
-  return material.value?.isPremium && !userStore.isPremium
-})
+const isFavorited = ref(false)
 
 // 页面加载
 onLoad((options) => {
@@ -172,6 +155,8 @@ const loadMaterialDetail = async () => {
     isLoading.value = true
     const result = await getMaterialDetail(materialId.value)
     material.value = result
+    // 检查收藏状态
+    checkFavoriteStatus()
   } catch (error) {
     console.error('加载素材详情失败:', error)
   } finally {
@@ -179,13 +164,36 @@ const loadMaterialDetail = async () => {
   }
 }
 
-// 图片预览
+// 检查收藏状态
+const checkFavoriteStatus = async () => {
+  try {
+    const result = await checkFavorite(materialId.value)
+    isFavorited.value = result.isFavorited
+  } catch {
+    // 未登录或请求失败，忽略
+  }
+}
+
+// 切换收藏
+const handleToggleFavorite = async () => {
+  if (!requireLogin()) return
+  try {
+    const result = await toggleFavorite(materialId.value)
+    isFavorited.value = result.isFavorited
+    uni.showToast({
+      title: result.isFavorited ? '已收藏' : '已取消收藏',
+      icon: 'none',
+      duration: 1500
+    })
+  } catch (error) {
+    console.error('收藏操作失败:', error)
+    uni.showToast({ title: '操作失败', icon: 'none' })
+  }
+}
+
+// 图片预览 — 所有用户均可查看大图
 const handleImagePreview = () => {
   if (!material.value) return
-  if (isBlurred.value) {
-    showUnlockSheet.value = true
-    return
-  }
   uni.previewImage({
     urls: [material.value.imageUrl],
     current: material.value.imageUrl
@@ -215,12 +223,12 @@ const handleContactService = () => {
   uni.showToast({ title: '客服功能开发中', icon: 'none' })
 }
 
-// 下载素材
+// 下载素材（仅会员可调用，CTA 栏已做权限控制）
 const handleDownload = async () => {
   if (!requireLogin()) return
 
-  // 会员检查
-  if (material.value.isPremium && !userStore.isPremium) {
+  // 兜底检查：非会员拦截
+  if (!userStore.isPremium) {
     showUnlockSheet.value = true
     return
   }
@@ -304,29 +312,6 @@ const handleShare = () => {
   font-size: 22rpx;
   color: #fff;
   font-weight: 600;
-}
-
-/* 渐变遮罩提示 */
-.gradient-overlay {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 120rpx;
-  background: linear-gradient(transparent, rgba(0,0,0,0.4));
-  display: flex;
-  align-items: flex-end;
-  padding-bottom: 20rpx;
-}
-
-.overlay-content {
-  padding: 0 24rpx;
-}
-
-.overlay-text {
-  font-size: 24rpx;
-  color: #fff;
-  opacity: 0.9;
 }
 
 /* ===== 信息区域 ===== */

@@ -1,4 +1,10 @@
--- 测试种子数据
+-- 测试种子数据（可重复执行：先清空再插入）
+DELETE FROM favorites;
+DELETE FROM downloads;
+DELETE FROM redeem_codes;
+DELETE FROM tools;
+DELETE FROM materials;
+DELETE FROM users;
 
 -- 测试用户
 INSERT INTO users (id, openid, nickname, avatar_url, member_type, member_expire_time, points, download_count, status) VALUES
@@ -13,8 +19,8 @@ INSERT INTO materials (id, title, description, image_url, thumbnail_url, categor
 (3, '复古便签纸', '复古做旧便签', 'https://example.com/img3.png', 'https://example.com/thumb3.png', '便签', '["复古"]', 0, 200, 1, 3),
 (4, '已下架素材', '不可见的素材', 'https://example.com/img4.png', 'https://example.com/thumb4.png', '贴纸', '[]', 0, 10, 0, 4);
 
--- 测试兑换码（未使用/已使用/过期）
+-- 测试兑换码（未使用/已使用/永久）
 INSERT INTO redeem_codes (id, code, type, status, user_id, used_time, expire_time) VALUES
-(1, 'TEST-VALID-CODE', 'yearly', 0, NULL, NULL, TIMESTAMP '2027-06-11 00:00:00'),
-(2, 'TEST-USED-CODE', 'monthly', 1, 1, TIMESTAMP '2026-06-10 12:00:00', NULL),
-(3, 'TEST-PERMANENT', 'permanent', 0, NULL, NULL, NULL);
+(1, 'TEST-VALID-CODE', 'yearly', 0, NULL, NULL, '2027-06-11 00:00:00'),
+(2, 'TEST-USED-CODE', 'monthly', 1, 1, '2026-06-10 12:00:00', NULL),
+(3, 'TEST-PERMANENT', 'permanent', 0, NULL, NULL, '2099-12-31 00:00:00');
