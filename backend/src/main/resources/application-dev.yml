@@ -21,7 +21,7 @@ spring:
       host: 111.229.148.112
       port: 6379
       password: redis123
-
+#微信小程序appid
 wechat:
   appid: wxf174a3d18f0d069b
   secret: c6056fa1d1dc973d2c6ec80134911a8d
