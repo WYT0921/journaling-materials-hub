@@ -1,6 +1,7 @@
 package com.journaling.hub.controller;
 
 import com.journaling.hub.common.Result;
+import com.journaling.hub.dto.BindPhoneRequest;
 import com.journaling.hub.dto.LoginRequest;
 import com.journaling.hub.dto.LoginResponse;
 import com.journaling.hub.dto.UserProfileUpdateRequest;
@@ -115,6 +116,25 @@ public class UserController {
         Long userId = (Long) request.getAttribute("userId");
         Map<String, Object> stats = userService.getUserStats(userId);
         return Result.ok(stats);
+    }
+
+    /**
+     * 绑定手机号（微信手机号授权）
+     */
+    @PostMapping("/bind-phone")
+    public Result<?> bindPhone(HttpServletRequest request,
+                               @Valid @RequestBody BindPhoneRequest bindRequest) {
+        Long userId = (Long) request.getAttribute("userId");
+
+        // 通过微信 code 换取手机号
+        String phoneNumber = weChatUtil.getPhoneNumber(bindRequest.getCode());
+        if (phoneNumber == null) {
+            return Result.error("获取手机号失败，请重试", 400);
+        }
+
+        // 绑定手机号
+        User user = userService.bindPhone(userId, phoneNumber);
+        return Result.ok(LoginResponse.UserInfo.fromUser(user));
     }
 
     /**

@@ -163,4 +163,15 @@ public class UserServiceImpl implements UserService {
             userMapper.updateById(user);
         }
     }
+
+    @Override
+    @Transactional
+    public User bindPhone(Long userId, String phone) {
+        User user = getProfile(userId);
+        user.setPhone(phone);
+        user.setUpdatedAt(LocalDateTime.now());
+        userMapper.updateById(user);
+        log.info("用户绑定手机号: userId={}, phone={}", userId, phone);
+        return user;
+    }
 }

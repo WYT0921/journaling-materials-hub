@@ -29,8 +29,26 @@
         >
           <text class="clear-icon">×</text>
         </view>
-        <view class="search-filter-btn" @tap="handleFilterTap">
+        <view class="search-filter-btn" :class="{ active: showFilter }" @tap="handleFilterTap">
           <text class="filter-icon">☰</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 筛选面板 -->
+    <view class="filter-panel" v-show="showFilter">
+      <view class="filter-section">
+        <text class="filter-label">排序方式</text>
+        <view class="filter-options">
+          <view
+            v-for="option in sortOptions"
+            :key="option.value"
+            class="filter-chip"
+            :class="{ active: materialStore.sortBy === option.value }"
+            @tap="handleSortChange(option.value)"
+          >
+            <text class="filter-chip-text">{{ option.label }}</text>
+          </view>
         </view>
       </view>
     </view>
@@ -133,6 +151,13 @@ const materialStore = useMaterialStore()
 
 const searchKeyword = ref('')
 const isRefreshing = ref(false)
+const showFilter = ref(false)
+
+const sortOptions = [
+  { label: '综合排序', value: 'default' },
+  { label: '最新发布', value: 'newest' },
+  { label: '最多下载', value: 'downloads' }
+]
 
 // 页面加载
 onMounted(() => {
@@ -204,7 +229,13 @@ const handleNotifTap = () => {
 
 // 筛选按钮
 const handleFilterTap = () => {
-  uni.showToast({ title: '筛选功能开发中', icon: 'none' })
+  showFilter.value = !showFilter.value
+}
+
+// 排序切换
+const handleSortChange = (value) => {
+  materialStore.setSortBy(value)
+  showFilter.value = false
 }
 
 // 下拉刷新（uni-app 生命周期）
@@ -278,10 +309,85 @@ onPullDownRefresh(() => {
   align-items: center;
   justify-content: center;
   margin-left: 4rpx;
+  border-radius: 50%;
+  transition: background 0.2s;
+
+  &.active {
+    background: #000;
+
+    .filter-icon {
+      color: #fff;
+    }
+  }
 }
 
 .filter-icon {
   font-size: 28rpx;
+  color: #666;
+}
+
+/* ===== 筛选面板 ===== */
+.filter-panel {
+  background: #fff;
+  margin: 0 24rpx;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.06);
+  position: relative;
+  z-index: 10;
+  animation: filterSlideIn 0.2s ease;
+}
+
+@keyframes filterSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-12rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.filter-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.filter-label {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.filter-options {
+  display: flex;
+  gap: 16rpx;
+}
+
+.filter-chip {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14rpx 0;
+  border-radius: 16rpx;
+  border: 1rpx solid #EEEEEE;
+  background: #F7F7F7;
+  transition: all 0.15s;
+
+  &.active {
+    background: #000;
+    border-color: #000;
+
+    .filter-chip-text {
+      color: #fff;
+    }
+  }
+}
+
+.filter-chip-text {
+  font-size: 24rpx;
   color: #666;
 }
 

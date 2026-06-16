@@ -1,10 +1,14 @@
 package com.journaling.hub.controller;
 
+import com.journaling.hub.util.WeChatUtil;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -13,6 +17,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @DisplayName("UserController")
 class UserControllerTest extends ControllerTestBase {
+
+    @MockBean
+    private WeChatUtil weChatUtil;
+
+    @BeforeEach
+    void setUpPhoneMock() {
+        // 默认 mock 返回一个测试手机号
+        when(weChatUtil.getPhoneNumber("test-phone-code")).thenReturn("13800138000");
+        when(weChatUtil.getPhoneNumber("invalid-code")).thenReturn(null);
+    }
 
     @Test
     @DisplayName("GET /api/user/profile — 正常获取个人信息")
@@ -72,5 +86,39 @@ class UserControllerTest extends ControllerTestBase {
                         .content(body))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true));
+    }
+
+    @Test
+    @DisplayName("POST /api/user/bind-phone — 无 Token 返回 401")
+    void bindPhone_withoutToken_shouldReturn401() throws Exception {
+        String body = "{\"code\":\"test-phone-code\"}";
+        mockMvc.perform(post("/api/user/bind-phone")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("POST /api/user/bind-phone — code 为空返回 400")
+    void bindPhone_emptyCode_shouldReturn400() throws Exception {
+        String body = "{\"code\":\"\"}";
+        mockMvc.perform(post("/api/user/bind-phone")
+                        .header("Authorization", normalUserToken())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("POST /api/user/bind-phone — 成功绑定手机号")
+    void bindPhone_shouldSucceed() throws Exception {
+        String body = "{\"code\":\"test-phone-code\"}";
+        mockMvc.perform(post("/api/user/bind-phone")
+                        .header("Authorization", normalUserToken())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.phone").value("13800138000"));
     }
 }

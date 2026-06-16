@@ -11,6 +11,13 @@ export const login = (code) => {
 }
 
 /**
+ * 开发环境登录（游客模式 / 无微信 code）
+ */
+export const devLogin = (openid, isPremium = false) => {
+  return post('/user/dev-login', { openid, isPremium })
+}
+
+/**
  * 获取用户资料
  */
 export const getProfile = () => {
@@ -36,4 +43,11 @@ export const getPremiumStatus = () => {
  */
 export const getUserStats = () => {
   return get('/user/stats')
+}
+
+/**
+ * 绑定手机号（微信手机号授权）
+ */
+export const bindPhone = (code) => {
+  return post('/user/bind-phone', { code })
 }

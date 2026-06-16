@@ -26,7 +26,7 @@ public class MaterialServiceImpl implements MaterialService {
     private MaterialMapper materialMapper;
 
     @Override
-    public IPage<Material> listMaterials(int page, int limit, String category, String keyword) {
+    public IPage<Material> listMaterials(int page, int limit, String category, String keyword, String sortBy) {
         Page<Material> pageParam = new Page<>(page, limit);
 
         LambdaQueryWrapper<Material> wrapper = new LambdaQueryWrapper<>();
@@ -56,8 +56,17 @@ public class MaterialServiceImpl implements MaterialService {
             });
         }
 
-        wrapper.orderByDesc(Material::getSortOrder)
-                .orderByDesc(Material::getCreatedAt);
+        // 动态排序
+        if ("downloads".equals(sortBy)) {
+            wrapper.orderByDesc(Material::getDownloadCount)
+                    .orderByDesc(Material::getCreatedAt);
+        } else if ("newest".equals(sortBy)) {
+            wrapper.orderByDesc(Material::getCreatedAt);
+        } else {
+            // default: 综合排序（按 sort_order 再按时间）
+            wrapper.orderByDesc(Material::getSortOrder)
+                    .orderByDesc(Material::getCreatedAt);
+        }
 
         return materialMapper.selectPage(pageParam, wrapper);
     }

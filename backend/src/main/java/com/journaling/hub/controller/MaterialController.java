@@ -33,9 +33,10 @@ public class MaterialController {
             @RequestParam(defaultValue = "20") int limit,
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "default") String sortBy,
             HttpServletRequest request) {
 
-        IPage<Material> materials = materialService.listMaterials(page, limit, category, keyword);
+        IPage<Material> materials = materialService.listMaterials(page, limit, category, keyword, sortBy);
 
         // 处理付费内容模糊化
         Boolean isPremium = (Boolean) request.getAttribute("isPremium");

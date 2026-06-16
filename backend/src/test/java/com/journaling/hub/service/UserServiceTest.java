@@ -116,4 +116,12 @@ class UserServiceTest extends BaseTest {
         User newUser = userService.findOrCreateByOpenid("ispremium-test-openid");
         assertFalse(newUser.isPremium());
     }
+
+    @Test
+    @Order(13)
+    void testBindPhone() {
+        User user = userService.bindPhone(1L, "13800138000");
+        assertNotNull(user);
+        assertEquals("13800138000", user.getPhone());
+    }
 }

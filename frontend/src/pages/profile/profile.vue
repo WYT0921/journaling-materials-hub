@@ -86,6 +86,42 @@
       <text class="card-arrow">›</text>
     </view>
 
+    <!-- ===== 手机号绑定卡 ===== -->
+    <view v-if="userStore.isLoggedIn" class="phone-section">
+      <!-- 已绑定 -->
+      <view v-if="userStore.userInfo?.phone" class="phone-card phone-bound">
+        <view class="phone-left">
+          <view class="phone-icon-circle">
+            <text class="phone-icon-text">📱</text>
+          </view>
+          <view class="phone-info">
+            <text class="phone-title">已绑定手机号</text>
+            <text class="phone-number">{{ maskedPhone }}</text>
+          </view>
+        </view>
+        <text class="card-arrow-bound">✓</text>
+      </view>
+
+      <!-- 未绑定 -->
+      <button
+        v-else
+        class="phone-card phone-unbound"
+        open-type="getPhoneNumber"
+        @getphonenumber="handleGetPhoneNumber"
+      >
+        <view class="phone-left">
+          <view class="phone-icon-circle phone-icon-dim">
+            <text class="phone-icon-text">📱</text>
+          </view>
+          <view class="phone-info">
+            <text class="phone-title">绑定手机号</text>
+            <text class="phone-desc">绑定后享受更多服务</text>
+          </view>
+        </view>
+        <text class="card-arrow">›</text>
+      </button>
+    </view>
+
     <!-- ===== 菜单列表 ===== -->
     <view class="menu-section">
       <view class="menu-item" @tap="handleSettingTap('settings')">
@@ -167,6 +203,12 @@ const formattedStats = computed(() => ({
   materialCount: stats.value.materialCount || 0
 }))
 
+const maskedPhone = computed(() => {
+  const phone = userStore.userInfo?.phone
+  if (!phone) return ''
+  return phone.replace(/(\d{3})\d{4}(\d+)/, '$1****$2')
+})
+
 onShow(() => {
   if (userStore.isLoggedIn) {
     loadUserStats()
@@ -245,6 +287,24 @@ const handleSettingTap = (type) => {
         showCancel: false
       })
       break
+  }
+}
+
+const handleGetPhoneNumber = async (event) => {
+  const code = event.detail?.code
+  if (!code) {
+    const errMsg = event.detail?.errMsg || ''
+    if (errMsg.indexOf('deny') === -1 && errMsg.indexOf('cancel') === -1) {
+      uni.showToast({ title: '获取手机号失败', icon: 'none' })
+    }
+    return
+  }
+
+  try {
+    await userStore.bindPhone(code)
+    await userStore.refreshProfile()
+  } catch (error) {
+    console.error('绑定手机号失败:', error)
   }
 }
 
@@ -504,6 +564,86 @@ const handleLogout = () => {
 .card-arrow {
   font-size: 36rpx;
   color: #ccc;
+}
+
+/* ===== 手机号绑定卡 ===== */
+.phone-section {
+  margin-bottom: 24rpx;
+}
+
+.phone-card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.phone-unbound {
+  width: 100%;
+  border: none;
+  text-align: left;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.phone-unbound::after {
+  border: none;
+}
+
+.phone-left {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+}
+
+.phone-icon-circle {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.phone-icon-dim {
+  background: #f0f0f0;
+}
+
+.phone-icon-text {
+  font-size: 36rpx;
+}
+
+.phone-info {
+  flex: 1;
+}
+
+.phone-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #111;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.phone-number {
+  font-size: 24rpx;
+  color: #888;
+  display: block;
+}
+
+.phone-desc {
+  font-size: 22rpx;
+  color: #999;
+  display: block;
+}
+
+.card-arrow-bound {
+  font-size: 28rpx;
+  color: #4CAF50;
 }
 
 /* ===== 菜单列表 (透明底+顶部线) ===== */

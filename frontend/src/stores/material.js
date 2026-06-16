@@ -17,6 +17,7 @@ export const useMaterialStore = defineStore('material', () => {
   const isLoading = ref(false)
   const activeCategory = ref('')
   const keyword = ref('')
+  const sortBy = ref('default')
   const categories = ref([])
 
   // 计算属性
@@ -52,6 +53,10 @@ export const useMaterialStore = defineStore('material', () => {
 
       if (keyword.value) {
         params.keyword = keyword.value
+      }
+
+      if (sortBy.value !== 'default') {
+        params.sortBy = sortBy.value
       }
 
       const result = await materialApi.getMaterials(params)
@@ -123,6 +128,14 @@ export const useMaterialStore = defineStore('material', () => {
   }
 
   /**
+   * 设置排序方式
+   */
+  const setSortBy = async (value) => {
+    sortBy.value = value
+    await resetAndLoad()
+  }
+
+  /**
    * 加载分类列表
    */
   const loadCategories = async () => {
@@ -152,6 +165,7 @@ export const useMaterialStore = defineStore('material', () => {
     isLoading,
     activeCategory,
     keyword,
+    sortBy,
     categories,
     isEmpty,
     loadMaterials,
@@ -159,6 +173,7 @@ export const useMaterialStore = defineStore('material', () => {
     loadMore,
     resetAndLoad,
     switchCategory,
+    setSortBy,
     loadCategories,
     refresh
   }

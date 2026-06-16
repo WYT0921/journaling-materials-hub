@@ -24,7 +24,7 @@ class MaterialServiceTest extends BaseTest {
     @Test
     @Order(1)
     void testListMaterials_All() {
-        IPage<Material> page = materialService.listMaterials(1, 10, null, null);
+        IPage<Material> page = materialService.listMaterials(1, 10, null, null, null);
         assertNotNull(page);
         assertTrue(page.getTotal() >= 3);
     }
@@ -32,7 +32,7 @@ class MaterialServiceTest extends BaseTest {
     @Test
     @Order(2)
     void testListMaterials_ByCategory() {
-        IPage<Material> page = materialService.listMaterials(1, 10, "贴纸", null);
+        IPage<Material> page = materialService.listMaterials(1, 10, "贴纸", null, null);
         assertNotNull(page);
         page.getRecords().forEach(m -> assertEquals("贴纸", m.getCategory()));
     }
@@ -40,7 +40,7 @@ class MaterialServiceTest extends BaseTest {
     @Test
     @Order(3)
     void testListMaterials_ByKeyword() {
-        IPage<Material> page = materialService.listMaterials(1, 10, null, "star");
+        IPage<Material> page = materialService.listMaterials(1, 10, null, "star", null);
         assertNotNull(page);
         assertTrue(page.getTotal() >= 0);
     }
@@ -48,7 +48,7 @@ class MaterialServiceTest extends BaseTest {
     @Test
     @Order(4)
     void testListMaterials_MultiKeyword() {
-        IPage<Material> page = materialService.listMaterials(1, 10, null, "vintage note");
+        IPage<Material> page = materialService.listMaterials(1, 10, null, "vintage note", null);
         assertNotNull(page);
         assertTrue(page.getTotal() >= 0);
     }
@@ -56,8 +56,8 @@ class MaterialServiceTest extends BaseTest {
     @Test
     @Order(5)
     void testListMaterials_Pagination() {
-        IPage<Material> page1 = materialService.listMaterials(1, 2, null, null);
-        IPage<Material> page2 = materialService.listMaterials(2, 2, null, null);
+        IPage<Material> page1 = materialService.listMaterials(1, 2, null, null, null);
+        IPage<Material> page2 = materialService.listMaterials(2, 2, null, null, null);
         assertNotEquals(page1.getRecords().get(0).getId(), page2.getRecords().get(0).getId());
     }
 

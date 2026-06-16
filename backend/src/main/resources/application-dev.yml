@@ -18,9 +18,13 @@ spring:
     password: 0921Txwjp@
   data:
     redis:
-      host: localhost
+      host: 111.229.148.112
       port: 6379
-      password:
+      password: redis123
+
+wechat:
+  appid: wxf174a3d18f0d069b
+  secret: c6056fa1d1dc973d2c6ec80134911a8d
 
 # 开发环境日志级别
 logging:

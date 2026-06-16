@@ -48,4 +48,12 @@ public interface UserService {
      * 增加下载次数
      */
     void incrementDownloadCount(Long userId);
+
+    /**
+     * 绑定手机号
+     * @param userId 用户 ID
+     * @param phone 手机号
+     * @return 更新后的用户
+     */
+    User bindPhone(Long userId, String phone);
 }

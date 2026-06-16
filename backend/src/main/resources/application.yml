@@ -26,9 +26,9 @@ spring:
     baseline-version: 3
   data:
     redis:
-      host: ${REDIS_HOST:localhost}
+      host: ${REDIS_HOST:111.229.148.112}
       port: ${REDIS_PORT:6379}
-      password: ${REDIS_PASSWORD:}
+      password: ${REDIS_PASSWORD:redis123}
       database: 0
       lettuce:
         pool:

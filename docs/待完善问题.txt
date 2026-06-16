@@ -1,6 +1,6 @@
 ═══════════════════════════════════════════════════════════════
   手账素材小程序 — 待完善问题清单
-  更新日期：2026-06-14
+  更新日期：2026-06-16
 ═══════════════════════════════════════════════════════════════
 
 【问题分级说明】
@@ -130,6 +130,34 @@
 6.5 SSH 服务器管理 ✅ 已配置
   - 本地密钥 ~/.ssh/id_ed25519 已授权到 root@111.229.148.112
 
+6.6 手机号授权登录 ✅ 已完成 (2026-06-16)
+  - 参考设计：docs/微信小程序手机号授权登录设计方案.pdf
+  - 后端：
+    · WeChatUtil 新增 getAccessToken()（内存缓存）+ getPhoneNumber(code) 方法
+    · 新增 POST /api/user/bind-phone 端点（需 JWT 认证）
+    · UserService.bindPhone(userId, phone)  + BindPhoneRequest DTO
+    · 新增错误码：PHONE_ALREADY_BOUND(1007), PHONE_BIND_FAILED(1008)
+    · 测试：UserServiceTest(1) + UserControllerTest(3) = 4 个新用例
+  - 前端：
+    · api/user.js 新增 bindPhone() + devLogin()
+    · stores/user.js 新增 bindPhone action + 游客模式自动降级 dev-login
+    · profile.vue 新增手机号卡片：已绑定(脱敏+✓) / 未绑定(button getPhoneNumber)
+    · Mock 数据 user-bind-phone.json + 注册
+  - 涉及文件：WeChatUtil.java, UserController.java, UserService*.java,
+              BindPhoneRequest.java, ErrorCode.java, UserServiceTest.java,
+              UserControllerTest.java, api/user.js, stores/user.js,
+              profile.vue, mock/user-bind-phone.json, mock/index.js
+
+6.7 Redis 服务器部署 ✅ 已完成 (2026-06-16)
+  - Docker redis:7-alpine 部署在 111.229.148.112:6379，密码 ******
+  - 防火墙 docker zone 开放 6379 端口
+
+6.8 首页筛选功能 ✅ 已完成 (2026-06-16)
+  - 后端：MaterialController + MaterialServiceImpl 新增 sortBy 参数
+    （default=综合 / newest=最新 / downloads=最多下载）
+  - 前端：index.vue 新增筛选面板（☰ 按钮展开，排序切换+动画）
+  - 后端测试：MaterialServiceTest 适配新签名，82→86 用例全通过
+
 ═══════════════════════════════════════════════════════════════
 七、功能占位（Stub）需补全 🟢
 ═══════════════════════════════════════════════════════════════
@@ -138,13 +166,14 @@
   - 现状：右上角"⋯"按钮 toast "功能开发中"
   - 涉及：frontend/src/pages/detail/detail.vue handleShare()
 
-7.2 首页 — 筛选功能
-  - 现状：搜索栏右侧"☰"按钮 toast "筛选功能开发中"
-  - 涉及：frontend/src/pages/index/index.vue handleFilterTap()
+7.2 首页 — 筛选功能 ✅ 已修复 (2026-06-16)
+  - 现状：点击"☰"展开筛选面板，支持排序方式切换（综合/最新/最多下载），选择后自动刷新
+  - 涉及：frontend/src/pages/index/index.vue（面板 UI + 动画）
+            frontend/src/stores/material.js（sortBy 状态 + setSortBy action）
+            backend/.../controller/MaterialController.java（新增 sortBy 参数）
+            backend/.../service/MaterialServiceImpl.java（动态排序逻辑）
 
 7.3 首页 — 通知功能
-  - 现状：导航栏"🔔"按钮 toast "暂无新通知"
-  - 涉及：frontend/src/pages/index/index.vue handleNotifTap()
 
 7.4 解锁弹窗 — 联系客服
   - 现状："联系客服"按钮 toast "客服功能开发中"
@@ -178,7 +207,7 @@
 
 
 ═══════════════════════════════════════════════════════════════
-  优先级建议（更新于 2026-06-14）
+  优先级建议（更新于 2026-06-16）
 ═══════════════════════════════════════════════════════════════
 
   🔴 第一批（核心修复）✅ 已完成
@@ -194,7 +223,11 @@
   🔵 基础设施 ✅ 已完成
     MinIO 部署 + 素材入库 + SSH 管理 + 前端 real 模式
 
+	  🆕 新增功能 ✅ 已完成 (2026-06-16)
+	    手机号授权登录 + Redis 部署 + 首页筛选功能
+	    游客模式自动降级 dev-login
+
   🟢 第四批（占位功能 + 体验优化）← 当前
-    8. 分享 / 筛选 / 通知 / 客服 / 设置页面
+    分享 / 通知 / 客服 / 设置页面（✅ 筛选已完成）
     9. 图片加载状态 + 作者信息动态化
    10. 下载错误分类处理
